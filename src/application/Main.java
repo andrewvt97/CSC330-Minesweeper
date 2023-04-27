@@ -82,23 +82,26 @@ public class Main extends Application {
 					Node n = (Node)e.getSource();     
 					Integer r1 = grid.getRowIndex(n);     
 					Integer c1 = grid.getColumnIndex(n);  
+					
+					if (myTiles[r1][c1].isClickedState() == true) {
+						return;
+					}
 				
 					Rectangle rect1 = (Rectangle)n;  
 					if (myTiles[r1][c1].getInfo() == 'r') {
 						rect1.setFill(Color.RED);
 					}
 					else {
-//						findEmptyBlocks(r1,c1,grid, COL_SIZE, ROW_SIZE, allColors);
-						if (myTiles[r1][c1].getInfo() == '0'){
-							rect1.setFill(Color.BEIGE);
-						}
-						else {
+						findEmptyBlocks(r1,c1,grid, COL_SIZE, ROW_SIZE, myTiles);
+						rect1.setFill(Color.BEIGE);
+						if (myTiles[r1][c1].getInfo() != '0') {
 						Text text = new Text(Character.toString(myTiles[r1][c1].getInfo()));
 						GridPane.setHalignment(text, HPos.CENTER); // align text to center horizontally
 					    GridPane.setValignment(text, VPos.CENTER); // align text to center vertically
 					    grid.add(text, c1, r1);
 						}
 					}
+					myTiles[r1][c1].setClickedState(true);
 					
 
 				});
@@ -158,30 +161,34 @@ public class Main extends Application {
 		return mines;
 	}
 	
-	// Add a check for finished state later
-//	private void findEmptyBlocks(int row, int col, GridPane grid, int numCols, int numRows, char Info[][]) { // uses recursion
-//		Node node;
-//		Rectangle rectangle;
-//		for (int i = row -1; i < row + 2; i++) {
-//			if (i < 0 || i >= numRows) {
-//				continue;
-//			}
-//			for (int j = col - 1; j < col + 2; j++) {
-//				if (j < 0 || j >= numCols || (i  == row && j == col) ) {
-//					continue;
-//				}
-//				node = grid.getChildren().get(i * numCols + j);
-//				if (Info[i][j] == '0') {
-//					rectangle = (Rectangle) node;
-//					rectangle.setFill(Color.BEIGE);
-//					findEmptyBlocks(i, j, grid, numCols, numRows, Info);
-//				}
-//				
-//			}
-//		}
-//		
-//		return;
-//	}
+	
+	private void findEmptyBlocks(int row, int col, GridPane grid, int numCols, int numRows, Tile Info[][]) { // uses recursion
+		Node node;
+		Rectangle rectangle;
+		for (int i = row -1; i < row + 2; i++) {
+			if (i < 0 || i >= numRows) {
+				continue;
+			}
+			for (int j = col - 1; j < col + 2; j++) {
+				if (j < 0 || j >= numCols || (i  == row && j == col) ) {
+					continue;
+				}
+				if (Info[i][j].isClickedState() == true) {
+					continue;
+				}
+				node = grid.getChildren().get(i * numCols + j);
+				if (Info[i][j].getInfo() == '0') {
+					rectangle = (Rectangle) node;
+					rectangle.setFill(Color.BEIGE);
+					Info[i][j].setClickedState(true);
+					findEmptyBlocks(i, j, grid, numCols, numRows, Info);
+				}
+				
+			}
+		}
+		
+		return;
+	}
 
 	
 }

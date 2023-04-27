@@ -3,11 +3,11 @@ package application;
 public class Tile {
 	
 	private char info;
-	private boolean finished;
+	private boolean clickedState;
 	
 	public Tile() {
 		info = 'x';
-		finished = false;
+		clickedState = false;
 	}
 
 	/**
@@ -25,18 +25,20 @@ public class Tile {
 	}
 
 	/**
-	 * @return the finished
+	 * @return the clickedState
 	 */
-	public boolean isFinished() {
-		return finished;
+	public boolean isClickedState() {
+		return clickedState;
 	}
 
 	/**
-	 * @param finished the finished to set
+	 * @param clickedState the clickedState to set
 	 */
-	public void setFinished(boolean finished) {
-		this.finished = finished;
+	public void setClickedState(boolean clickedState) {
+		this.clickedState = clickedState;
 	}
 
+
+	
 	
 }
