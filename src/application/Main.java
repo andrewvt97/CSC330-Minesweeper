@@ -19,8 +19,7 @@ public class Main extends Application {
 	private final int ROW_SIZE = 8;
 	private final int COL_SIZE = 10;
 	private final int flags = 10;
-	
-	private char[][] allColors;
+	private Tile myTiles[][] = new Tile[ROW_SIZE][COL_SIZE];
 	String flagLocation = "";
 	HashMap<String, Integer> map = new HashMap<String, Integer>();
 	
@@ -46,23 +45,23 @@ public class Main extends Application {
 		System.out.println(map);
 	
 		
-		allColors = new char[ROW_SIZE][COL_SIZE];
 	
 		for(int row = 0; row < ROW_SIZE; row++) {
 			for(int col = 0; col < COL_SIZE; col++) {
 				flagLocation = Integer.toString(row) + "," + Integer.toString(col);
+				myTiles[row][col] = new Tile();
 				if (map.containsKey(flagLocation)) {
-					allColors[row][col] = 'r';
+					myTiles[row][col].setInfo('r');
 				}
 				else {
 //					System.out.println(minesInProximity(map, flagLocation, ROW_SIZE, COL_SIZE));
-					allColors[row][col] = (char)(minesInProximity(map, flagLocation, ROW_SIZE, COL_SIZE)+ '0');
-					System.out.println(allColors[row][col]);
+					myTiles[row][col].setInfo((char)(minesInProximity(map, flagLocation, ROW_SIZE, COL_SIZE)+ '0'));
+
 				}
 			}
 		}
 		System.out.println("Original configuration of the board:\n");
-		printColors();		
+		printInfo();		
 
 		
 
@@ -85,16 +84,16 @@ public class Main extends Application {
 					Integer c1 = grid.getColumnIndex(n);  
 				
 					Rectangle rect1 = (Rectangle)n;  
-					if (allColors[r1][c1] == 'r') {
+					if (myTiles[r1][c1].getInfo() == 'r') {
 						rect1.setFill(Color.RED);
 					}
 					else {
-						findEmptyBlocks(r1,c1,grid, COL_SIZE, ROW_SIZE, allColors);
-						if (allColors[r1][c1] == '0'){
+//						findEmptyBlocks(r1,c1,grid, COL_SIZE, ROW_SIZE, allColors);
+						if (myTiles[r1][c1].getInfo() == '0'){
 							rect1.setFill(Color.BEIGE);
 						}
 						else {
-						Text text = new Text(Character.toString(allColors[r1][c1]));
+						Text text = new Text(Character.toString(myTiles[r1][c1].getInfo()));
 						GridPane.setHalignment(text, HPos.CENTER); // align text to center horizontally
 					    GridPane.setValignment(text, VPos.CENTER); // align text to center vertically
 					    grid.add(text, c1, r1);
@@ -119,10 +118,10 @@ public class Main extends Application {
 		launch(args);
 	}
 	
-	private void printColors() {
+	private void printInfo() {
 		for(int row = 0; row < ROW_SIZE; row++) {
 			for(int col = 0; col < COL_SIZE; col++) {
-				System.out.print(allColors[row][col] + " ");
+				System.out.print(myTiles[row][col].getInfo() + " ");
 			}
 			System.out.println();
 		}
@@ -160,29 +159,29 @@ public class Main extends Application {
 	}
 	
 	// Add a check for finished state later
-	private void findEmptyBlocks(int row, int col, GridPane grid, int numCols, int numRows, char Info[][]) { // uses recursion
-		Node node;
-		Rectangle rectangle;
-		for (int i = row -1; i < row + 2; i++) {
-			if (i < 0 || i >= numRows) {
-				continue;
-			}
-			for (int j = col - 1; j < col + 2; j++) {
-				if (j < 0 || j >= numCols || (i  == row && j == col) ) {
-					continue;
-				}
-				node = grid.getChildren().get(i * numCols + j);
-				if (Info[i][j] == '0') {
-					rectangle = (Rectangle) node;
-					rectangle.setFill(Color.BEIGE);
-					findEmptyBlocks(i, j, grid, numCols, numRows, Info);
-				}
-				
-			}
-		}
-		
-		return;
-	}
+//	private void findEmptyBlocks(int row, int col, GridPane grid, int numCols, int numRows, char Info[][]) { // uses recursion
+//		Node node;
+//		Rectangle rectangle;
+//		for (int i = row -1; i < row + 2; i++) {
+//			if (i < 0 || i >= numRows) {
+//				continue;
+//			}
+//			for (int j = col - 1; j < col + 2; j++) {
+//				if (j < 0 || j >= numCols || (i  == row && j == col) ) {
+//					continue;
+//				}
+//				node = grid.getChildren().get(i * numCols + j);
+//				if (Info[i][j] == '0') {
+//					rectangle = (Rectangle) node;
+//					rectangle.setFill(Color.BEIGE);
+//					findEmptyBlocks(i, j, grid, numCols, numRows, Info);
+//				}
+//				
+//			}
+//		}
+//		
+//		return;
+//	}
 
 	
 }
