@@ -92,13 +92,16 @@ public class Main extends Application {
 						rect1.setFill(Color.RED);
 					}
 					else {
-						findEmptyBlocks(r1,c1,grid, COL_SIZE, ROW_SIZE, myTiles);
+						
 						rect1.setFill(Color.BEIGE);
-						if (myTiles[r1][c1].getInfo() != '0') {
-						Text text = new Text(Character.toString(myTiles[r1][c1].getInfo()));
-						GridPane.setHalignment(text, HPos.CENTER); // align text to center horizontally
-					    GridPane.setValignment(text, VPos.CENTER); // align text to center vertically
-					    grid.add(text, c1, r1);
+						if (myTiles[r1][c1].getInfo() == '0') {
+							findEmptyBlocks(r1,c1,grid, COL_SIZE, ROW_SIZE, myTiles);
+						}
+						else {
+							Text text = new Text(Character.toString(myTiles[r1][c1].getInfo()));
+							GridPane.setHalignment(text, HPos.CENTER); // align text to center horizontally
+						    GridPane.setValignment(text, VPos.CENTER); // align text to center vertically
+						    grid.add(text, c1, r1);
 						}
 					}
 					myTiles[r1][c1].setClickedState(true);
@@ -165,6 +168,8 @@ public class Main extends Application {
 	private void findEmptyBlocks(int row, int col, GridPane grid, int numCols, int numRows, Tile Info[][]) { // uses recursion
 		Node node;
 		Rectangle rectangle;
+		Text text;
+		
 		for (int i = row -1; i < row + 2; i++) {
 			if (i < 0 || i >= numRows) {
 				continue;
@@ -182,6 +187,15 @@ public class Main extends Application {
 					rectangle.setFill(Color.BEIGE);
 					Info[i][j].setClickedState(true);
 					findEmptyBlocks(i, j, grid, numCols, numRows, Info);
+				}
+				else if (Info[i][j].getInfo() != 'r') { // must be another number then
+					rectangle = (Rectangle) node;
+					rectangle.setFill(Color.BEIGE);
+					Info[i][j].setClickedState(true);
+					text = new Text(Character.toString(myTiles[i][j].getInfo()));
+					GridPane.setHalignment(text, HPos.CENTER); // align text to center horizontally
+				    GridPane.setValignment(text, VPos.CENTER); // align text to center vertically
+				    grid.add(text, j, i);
 				}
 				
 			}
