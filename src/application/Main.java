@@ -16,54 +16,20 @@ import java.util.HashMap;
 
 public class Main extends Application {
 	
+	private boolean isFirstClick = true;
 	private final int ROW_SIZE = 8;
 	private final int COL_SIZE = 10;
 	private final int flags = 10;
 	private Tile myTiles[][] = new Tile[ROW_SIZE][COL_SIZE];
 	String flagLocation = "";
+	int numberFlags = 0;
 	HashMap<String, Integer> map = new HashMap<String, Integer>();
+	HashMap<String, Integer> noFlagMap = new HashMap<String, Integer>();
 	
 	@Override	
 	public void start(Stage primaryStage) {
 		
-		int numberFlags = 0;
-		
-		while (numberFlags < flags) {
-			flagLocation +=  Integer.toString((int)(Math.random() * ROW_SIZE));
-			flagLocation +=  "," + Integer.toString((int)(Math.random() * COL_SIZE));
-//			System.out.println(flagLocation);
-			while (map.containsKey(flagLocation)) {
-				flagLocation = "";
-				flagLocation +=  Integer.toString((int)(Math.random() * ROW_SIZE));
-				flagLocation +=  "," + Integer.toString((int)(Math.random() * COL_SIZE));
-			}
-			map.put(flagLocation, 1);
-			numberFlags += 1;
-			flagLocation = "";
-		}
-		
-		System.out.println(map);
-	
-		
-	
-		for(int row = 0; row < ROW_SIZE; row++) {
-			for(int col = 0; col < COL_SIZE; col++) {
-				flagLocation = Integer.toString(row) + "," + Integer.toString(col);
-				myTiles[row][col] = new Tile();
-				if (map.containsKey(flagLocation)) {
-					myTiles[row][col].setInfo('r');
-				}
-				else {
-//					System.out.println(minesInProximity(map, flagLocation, ROW_SIZE, COL_SIZE));
-					myTiles[row][col].setInfo((char)(minesInProximity(map, flagLocation, ROW_SIZE, COL_SIZE)+ '0'));
-
-				}
-			}
-		}
-		System.out.println("Original configuration of the board:\n");
-		printInfo();		
-
-		
+			
 
 		GridPane grid = new GridPane();
 
@@ -83,8 +49,15 @@ public class Main extends Application {
 					Integer r1 = grid.getRowIndex(n);     
 					Integer c1 = grid.getColumnIndex(n);  
 					
-					if (myTiles[r1][c1].isClickedState() == true) {
+					
+					
+					if (!isFirstClick && myTiles[r1][c1].isClickedState() == true) {
 						return;
+					}
+					
+					if (isFirstClick == true) {
+						isFirstClick = false;
+						createGame(r1, c1);
 					}
 				
 					Rectangle rect1 = (Rectangle)n;  
@@ -203,6 +176,70 @@ public class Main extends Application {
 		
 		return;
 	}
+	
+	private void createGame(int rowPos, int colPos) {
+		
+		
+		for (int i = rowPos -1; i < rowPos + 2; i++) {
+			if (i < 0 || i >= ROW_SIZE) {
+				continue;
+			}
+			for (int j = colPos - 1; j < colPos + 2; j++) {
+				if (j < 0 || j >= COL_SIZE  ) {
+					continue;
+				}
+				flagLocation +=  Integer.toString(i);
+				flagLocation +=  "," + Integer.toString(j);
+				noFlagMap.put(flagLocation, 1);
+				flagLocation = "";
+					
+			}
+		}
+		
+		System.out.println(noFlagMap);
+		
+		while (numberFlags < flags) {
+			flagLocation +=  Integer.toString((int)(Math.random() * ROW_SIZE));
+			flagLocation +=  "," + Integer.toString((int)(Math.random() * COL_SIZE));
+//			System.out.println(flagLocation);
+			while (map.containsKey(flagLocation) || noFlagMap.containsKey(flagLocation)) {
+				flagLocation = "";
+				flagLocation +=  Integer.toString((int)(Math.random() * ROW_SIZE));
+				flagLocation +=  "," + Integer.toString((int)(Math.random() * COL_SIZE));
+			}
+			map.put(flagLocation, 1);
+			numberFlags += 1;
+			flagLocation = "";
+		}
+		
+		System.out.println(map);
+	
+		
+	
+		for(int row = 0; row < ROW_SIZE; row++) {
+			
+			for(int col = 0; col < COL_SIZE; col++) {
+				flagLocation = Integer.toString(row) + "," + Integer.toString(col);
+				myTiles[row][col] = new Tile();
+				if (map.containsKey(flagLocation)) {
+					myTiles[row][col].setInfo('r');
+				}
+				else {
+//					System.out.println(minesInProximity(map, flagLocation, ROW_SIZE, COL_SIZE));
+					myTiles[row][col].setInfo((char)(minesInProximity(map, flagLocation, ROW_SIZE, COL_SIZE)+ '0'));
+
+				}
+			}
+		}
+		
+		
+		
+		
+		System.out.println("Original configuration of the board:\n");
+		printInfo();		
+	}
+	
+	
 
 	
 }
