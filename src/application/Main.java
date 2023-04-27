@@ -19,6 +19,7 @@ public class Main extends Application {
 	private final int ROW_SIZE = 8;
 	private final int COL_SIZE = 10;
 	private final int flags = 10;
+	
 	private char[][] allColors;
 	String flagLocation = "";
 	HashMap<String, Integer> map = new HashMap<String, Integer>();
@@ -88,10 +89,16 @@ public class Main extends Application {
 						rect1.setFill(Color.RED);
 					}
 					else {
+						findEmptyBlocks(r1,c1,grid, COL_SIZE, ROW_SIZE, allColors);
+						if (allColors[r1][c1] == '0'){
+							rect1.setFill(Color.BEIGE);
+						}
+						else {
 						Text text = new Text(Character.toString(allColors[r1][c1]));
 						GridPane.setHalignment(text, HPos.CENTER); // align text to center horizontally
 					    GridPane.setValignment(text, VPos.CENTER); // align text to center vertically
 					    grid.add(text, c1, r1);
+						}
 					}
 					
 
@@ -135,7 +142,7 @@ public class Main extends Application {
 		for (int i = row -1; i < row + 2; i++) {
 			for (int j = column - 1; j < column + 2; j++) {
 				// Do not need to care about avoiding checking current spot because it won't have a flag anyway
-				// This avoids the if statement check everytime although it checks 9 each time
+				// This avoids the if statement check everytime although it checks 9 instead of 8
 				flagLocation +=  Integer.toString(i);
 				flagLocation +=  "," + Integer.toString(j);
 				if (map.containsKey(flagLocation)) {
@@ -150,6 +157,31 @@ public class Main extends Application {
 //		System.out.println(column);
 		
 		return mines;
+	}
+	
+	// Add a check for finished state later
+	private void findEmptyBlocks(int row, int col, GridPane grid, int numCols, int numRows, char Info[][]) { // uses recursion
+		Node node;
+		Rectangle rectangle;
+		for (int i = row -1; i < row + 2; i++) {
+			if (i < 0 || i >= numRows) {
+				continue;
+			}
+			for (int j = col - 1; j < col + 2; j++) {
+				if (j < 0 || j >= numCols || (i  == row && j == col) ) {
+					continue;
+				}
+				node = grid.getChildren().get(i * numCols + j);
+				if (Info[i][j] == '0') {
+					rectangle = (Rectangle) node;
+					rectangle.setFill(Color.BEIGE);
+					findEmptyBlocks(i, j, grid, numCols, numRows, Info);
+				}
+				
+			}
+		}
+		
+		return;
 	}
 
 	
