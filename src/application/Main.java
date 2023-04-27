@@ -42,21 +42,22 @@ public class Main extends Application {
 		System.out.println(map);
 		
 		allColors = new char[ROW_SIZE][COL_SIZE];
-
+	
 		for(int row = 0; row < ROW_SIZE; row++) {
 			for(int col = 0; col < COL_SIZE; col++) {
 				flagLocation = Integer.toString(row) + "," + Integer.toString(col);
 				if (map.containsKey(flagLocation)) {
-					allColors[row][col] = 'g';
+					allColors[row][col] = 'r';
 				}
 				else {
-					allColors[row][col] = 'r';
+					allColors[row][col] = 'g';
 				}
 			}
 		}
 		System.out.println("Original configuration of the board:\n");
 		printColors();		
 
+		
 
 		GridPane grid = new GridPane();
 
@@ -65,15 +66,24 @@ public class Main extends Application {
 			
 				Rectangle rect = new Rectangle(50,50);
 				
-				if (allColors[row][col] == 'g') {
-					rect.setFill(Color.GREEN);
-				} 
-				else {
-					rect.setFill(Color.RED);
-				}
+				rect.setFill(Color.LIGHTGREEN);
+				
 			
 				rect.setStrokeWidth(2);
 				rect.setStroke(Color.BLACK);
+				
+				rect.setOnMouseClicked(e -> {
+					Node n = (Node)e.getSource();     
+					Integer r1 = grid.getRowIndex(n);     
+					Integer c1 = grid.getColumnIndex(n);  
+				
+					Rectangle rect1 = (Rectangle)n;  
+					if (allColors[r1][c1] == 'r') {
+						rect1.setFill(Color.RED);
+					}
+					
+
+				});
 				
 				grid.add(rect, col, row);
 			}
