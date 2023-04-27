@@ -1,10 +1,13 @@
 package application;
 
 import javafx.application.Application;
+import javafx.geometry.HPos;
+import javafx.geometry.VPos;
 import javafx.stage.Stage;
 import javafx.scene.Scene;
 import javafx.scene.layout.GridPane;
 import javafx.scene.shape.Rectangle;
+import javafx.scene.text.Text;
 import javafx.scene.paint.Color;
 import javafx.scene.Node;
 import java.util.HashMap;
@@ -40,6 +43,7 @@ public class Main extends Application {
 		}
 		
 		System.out.println(map);
+	
 		
 		allColors = new char[ROW_SIZE][COL_SIZE];
 	
@@ -50,7 +54,9 @@ public class Main extends Application {
 					allColors[row][col] = 'r';
 				}
 				else {
-					allColors[row][col] = 'g';
+//					System.out.println(minesInProximity(map, flagLocation, ROW_SIZE, COL_SIZE));
+					allColors[row][col] = (char)(minesInProximity(map, flagLocation, ROW_SIZE, COL_SIZE)+ '0');
+					System.out.println(allColors[row][col]);
 				}
 			}
 		}
@@ -81,6 +87,12 @@ public class Main extends Application {
 					if (allColors[r1][c1] == 'r') {
 						rect1.setFill(Color.RED);
 					}
+					else {
+						Text text = new Text(Character.toString(allColors[r1][c1]));
+						GridPane.setHalignment(text, HPos.CENTER); // align text to center horizontally
+					    GridPane.setValignment(text, VPos.CENTER); // align text to center vertically
+					    grid.add(text, c1, r1);
+					}
 					
 
 				});
@@ -110,6 +122,35 @@ public class Main extends Application {
 		System.out.println();
 	}
 	
+	private int minesInProximity(HashMap <String, Integer>map, String position, int rowSize, int colSize ) {
+		
+		String location[] = position.split(",");
+		int row = Integer.parseInt(location[0]);
+		int column = Integer.parseInt(location[1]);
+		int mines = 0;
+		
+		// Don't need to worry about going out of bounds because the hash map takes care of that
+		String flagLocation = "";
+		
+		for (int i = row -1; i < row + 2; i++) {
+			for (int j = column - 1; j < column + 2; j++) {
+				// Do not need to care about avoiding checking current spot because it won't have a flag anyway
+				// This avoids the if statement check everytime although it checks 9 each time
+				flagLocation +=  Integer.toString(i);
+				flagLocation +=  "," + Integer.toString(j);
+				if (map.containsKey(flagLocation)) {
+					mines += 1;
+				}
+				
+				flagLocation = "";
+			}
+		}
+		
+//		System.out.println(row);
+//		System.out.println(column);
+		
+		return mines;
+	}
 
 	
 }
