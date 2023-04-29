@@ -67,10 +67,10 @@ public class Main extends Application {
 						
 						System.out.println("Yes");
 						
-//						if ((boolean)rect1.getProperties().containsKey("hasFlag")) {
-//							System.out.println("haha");
-//							return;
-//						}
+						if ((boolean)vbox.getProperties().containsKey("hasFlag")) {
+							System.out.println("haha");
+							return;
+						}
 						
 						if (!isFirstClick && myTiles[r1][c1].isClickedState() == true) {
 							return;
@@ -100,7 +100,22 @@ public class Main extends Application {
 						myTiles[r1][c1].setClickedState(true);
 					}
 					else if (e.getButton() == MouseButton.SECONDARY) {
-						System.out.println("oh no");
+						
+						Text text = new Text("FLAG");
+						
+						if ((boolean)vbox.getProperties().containsKey("hasFlag")) {
+							System.out.println("help");
+							vbox.getProperties().remove("hasFlag");
+							vbox.getChildren().clear();
+						}
+						else {
+							System.out.println("oh no");
+							vbox.getProperties().put("hasFlag", true);
+							
+							vbox.setAlignment(Pos.CENTER);
+						    vbox.getChildren().add(text);
+						}
+						
 
 					}
 					e.consume();
