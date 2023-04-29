@@ -2,11 +2,18 @@ package application;
 
 import javafx.application.Application;
 import javafx.geometry.HPos;
+import javafx.geometry.Pos;
 import javafx.geometry.VPos;
 import javafx.stage.Stage;
 import javafx.scene.Scene;
+import javafx.scene.input.MouseButton;
+import javafx.scene.layout.Border;
+import javafx.scene.layout.BorderStroke;
+import javafx.scene.layout.BorderStrokeStyle;
+import javafx.scene.layout.BorderWidths;
+import javafx.scene.layout.CornerRadii;
 import javafx.scene.layout.GridPane;
-import javafx.scene.shape.Rectangle;
+import javafx.scene.layout.VBox;
 import javafx.scene.text.Text;
 import javafx.scene.paint.Color;
 import javafx.scene.Node;
@@ -36,53 +43,72 @@ public class Main extends Application {
 		for(int row = 0; row < ROW_SIZE; row++) {
 			for(int col = 0; col < COL_SIZE; col++) {
 			
-				Rectangle rect = new Rectangle(50,50);
+				VBox vbox = new VBox();
+				vbox.setPrefSize(50, 50);
+				 
+				vbox.setStyle("-fx-background-color: lightgreen;");
 				
-				rect.setFill(Color.LIGHTGREEN);
 				
-			
-				rect.setStrokeWidth(2);
-				rect.setStroke(Color.BLACK);
+				// Set the border style
+				vbox.setBorder(new Border(new BorderStroke(Color.BLACK, BorderStrokeStyle.SOLID, CornerRadii.EMPTY, new BorderWidths(2))));
+
 				
-				rect.setOnMouseClicked(e -> {
+				vbox.setOnMouseClicked(e -> {
+					
 					Node n = (Node)e.getSource();     
 					Integer r1 = grid.getRowIndex(n);     
-					Integer c1 = grid.getColumnIndex(n);  
+					Integer c1 = grid.getColumnIndex(n); 
+
+					VBox vbox1 = (VBox)n;
 					
+					System.out.println("No");
 					
-					
-					if (!isFirstClick && myTiles[r1][c1].isClickedState() == true) {
-						return;
-					}
-					
-					if (isFirstClick == true) {
-						isFirstClick = false;
-						createGame(r1, c1);
-					}
-				
-					Rectangle rect1 = (Rectangle)n;  
-					if (myTiles[r1][c1].getInfo() == 'r') {
-						rect1.setFill(Color.RED);
-					}
-					else {
+					if (e.getButton() == MouseButton.PRIMARY) {
 						
-						rect1.setFill(Color.BEIGE);
-						if (myTiles[r1][c1].getInfo() == '0') {
-							findEmptyBlocks(r1,c1,grid, COL_SIZE, ROW_SIZE, myTiles);
+						System.out.println("Yes");
+						
+//						if ((boolean)rect1.getProperties().containsKey("hasFlag")) {
+//							System.out.println("haha");
+//							return;
+//						}
+						
+						if (!isFirstClick && myTiles[r1][c1].isClickedState() == true) {
+							return;
+						}
+						
+						if (isFirstClick == true) {
+							isFirstClick = false;
+							createGame(r1, c1);
+						}
+					
+						
+						if (myTiles[r1][c1].getInfo() == 'r') {
+
+							vbox.setStyle("-fx-background-color: red;");
 						}
 						else {
-							Text text = new Text(Character.toString(myTiles[r1][c1].getInfo()));
-							GridPane.setHalignment(text, HPos.CENTER); // align text to center horizontally
-						    GridPane.setValignment(text, VPos.CENTER); // align text to center vertically
-						    grid.add(text, c1, r1);
+							vbox.setStyle("-fx-background-color: beige;");
+							if (myTiles[r1][c1].getInfo() == '0') {
+								findEmptyBlocks(r1,c1,grid, COL_SIZE, ROW_SIZE, myTiles);
+							}
+							else {
+								Text text = new Text(Character.toString(myTiles[r1][c1].getInfo()));
+							    vbox.setAlignment(Pos.CENTER);
+							    vbox.getChildren().add(text);
+							}
 						}
+						myTiles[r1][c1].setClickedState(true);
 					}
-					myTiles[r1][c1].setClickedState(true);
+					else if (e.getButton() == MouseButton.SECONDARY) {
+						System.out.println("oh no");
+
+					}
+					e.consume();
 					
 
 				});
 				
-				grid.add(rect, col, row);
+				grid.add(vbox, col, row);
 			}
 		}
 		Scene scene = new Scene(grid);  
@@ -140,7 +166,7 @@ public class Main extends Application {
 	
 	private void findEmptyBlocks(int row, int col, GridPane grid, int numCols, int numRows, Tile Info[][]) { // uses recursion
 		Node node;
-		Rectangle rectangle;
+		VBox vbox = new VBox();
 		Text text;
 		
 		for (int i = row -1; i < row + 2; i++) {
@@ -155,20 +181,27 @@ public class Main extends Application {
 					continue;
 				}
 				node = grid.getChildren().get(i * numCols + j);
-				if (Info[i][j].getInfo() == '0') {
-					rectangle = (Rectangle) node;
-					rectangle.setFill(Color.BEIGE);
-					Info[i][j].setClickedState(true);
-					findEmptyBlocks(i, j, grid, numCols, numRows, Info);
-				}
-				else if (Info[i][j].getInfo() != 'r') { // must be another number then
-					rectangle = (Rectangle) node;
-					rectangle.setFill(Color.BEIGE);
-					Info[i][j].setClickedState(true);
-					text = new Text(Character.toString(myTiles[i][j].getInfo()));
-					GridPane.setHalignment(text, HPos.CENTER); // align text to center horizontally
-				    GridPane.setValignment(text, VPos.CENTER); // align text to center vertically
-				    grid.add(text, j, i);
+				if (Info[i][j].getInfo() != 'r') {
+//					if ((boolean)node.getProperties().containsKey("hasFlag")) {
+//						Text flagText = (Text) node.getUserData();
+//				    	 grid.getChildren().remove(flagText);
+//				    	 node.setUserData(null);
+//				    	 node.getProperties().remove("hasFlag");
+//					}
+					vbox = (VBox) node;
+					vbox.setStyle("-fx-background-color: beige;"); // change to css file later
+					if (Info[i][j].getInfo() == '0') {
+						
+						Info[i][j].setClickedState(true);
+						findEmptyBlocks(i, j, grid, numCols, numRows, Info);
+					}
+					else  { // must be another number then
+						
+						Info[i][j].setClickedState(true);
+						text = new Text(Character.toString(myTiles[i][j].getInfo()));
+						vbox.setAlignment(Pos.CENTER);
+						vbox.getChildren().add(text);
+					}
 				}
 				
 			}
