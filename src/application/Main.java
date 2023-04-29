@@ -6,6 +6,8 @@ import javafx.geometry.Pos;
 import javafx.geometry.VPos;
 import javafx.stage.Stage;
 import javafx.scene.Scene;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseButton;
 import javafx.scene.layout.Border;
 import javafx.scene.layout.BorderStroke;
@@ -17,6 +19,8 @@ import javafx.scene.layout.VBox;
 import javafx.scene.text.Text;
 import javafx.scene.paint.Color;
 import javafx.scene.Node;
+
+import java.io.File;
 import java.util.HashMap;
 
 
@@ -27,6 +31,8 @@ public class Main extends Application {
 	private final int ROW_SIZE = 8;
 	private final int COL_SIZE = 10;
 	private final int flags = 10;
+	private final int tilesToWin = ROW_SIZE * COL_SIZE - flags;
+	private int tilesClicked = 0;
 	private Tile myTiles[][] = new Tile[ROW_SIZE][COL_SIZE];
 	String flagLocation = "";
 	int numberFlags = 0;
@@ -61,14 +67,11 @@ public class Main extends Application {
 
 					VBox vbox1 = (VBox)n;
 					
-					System.out.println("No");
 					
 					if (e.getButton() == MouseButton.PRIMARY) {
 						
-						System.out.println("Yes");
 						
 						if ((boolean)vbox.getProperties().containsKey("hasFlag")) {
-							System.out.println("haha");
 							return;
 						}
 						
@@ -83,37 +86,61 @@ public class Main extends Application {
 					
 						
 						if (myTiles[r1][c1].getInfo() == 'r') {
-
-							vbox.setStyle("-fx-background-color: red;");
+							
+							File file = new File("src/images/Minesweeper-Bomb.png");
+							Image minesweeperBomb = new Image(file.toURI().toString());
+							ImageView bombContainer = new ImageView(minesweeperBomb);
+							
+							bombContainer.setFitWidth(40); // Set the width to 40 pixels
+							bombContainer.setFitHeight(40); // Set the height to 40 pixels
+							vbox.setAlignment(Pos.CENTER);
+						    vbox.getChildren().add(bombContainer);
+						    
+						    youLose();
 						}
 						else {
+							
 							vbox.setStyle("-fx-background-color: beige;");
 							if (myTiles[r1][c1].getInfo() == '0') {
 								findEmptyBlocks(r1,c1,grid, COL_SIZE, ROW_SIZE, myTiles);
 							}
 							else {
+								tilesClicked += 1;
 								Text text = new Text(Character.toString(myTiles[r1][c1].getInfo()));
 							    vbox.setAlignment(Pos.CENTER);
 							    vbox.getChildren().add(text);
 							}
 						}
 						myTiles[r1][c1].setClickedState(true);
+						
+						System.out.println(tilesClicked);
+						if (tilesClicked == tilesToWin) {
+							youWin();
+						}
 					}
 					else if (e.getButton() == MouseButton.SECONDARY) {
 						
-						Text text = new Text("FLAG");
+
 						
 						if ((boolean)vbox.getProperties().containsKey("hasFlag")) {
-							System.out.println("help");
+					
 							vbox.getProperties().remove("hasFlag");
 							vbox.getChildren().clear();
 						}
 						else {
-							System.out.println("oh no");
+							
+							File file = new File("src/images/Minesweeper-Flag.png");
+							Image minesweeperFlag = new Image(file.toURI().toString());
+							ImageView flagContainer = new ImageView(minesweeperFlag);
+							
+						
+							flagContainer.setFitWidth(40); // Set the width to 40 pixels
+							flagContainer.setFitHeight(40); // Set the height to 40 pixels
+							
 							vbox.getProperties().put("hasFlag", true);
 							
 							vbox.setAlignment(Pos.CENTER);
-						    vbox.getChildren().add(text);
+						    vbox.getChildren().add(flagContainer);
 						}
 						
 
@@ -196,14 +223,14 @@ public class Main extends Application {
 					continue;
 				}
 				node = grid.getChildren().get(i * numCols + j);
+				vbox = (VBox) node;
 				if (Info[i][j].getInfo() != 'r') {
-//					if ((boolean)node.getProperties().containsKey("hasFlag")) {
-//						Text flagText = (Text) node.getUserData();
-//				    	 grid.getChildren().remove(flagText);
-//				    	 node.setUserData(null);
-//				    	 node.getProperties().remove("hasFlag");
-//					}
+					if ((boolean)vbox.getProperties().containsKey("hasFlag")) {
+						vbox.getProperties().remove("hasFlag");
+						vbox.getChildren().clear();
+					}
 					vbox = (VBox) node;
+					tilesClicked += 1;
 					vbox.setStyle("-fx-background-color: beige;"); // change to css file later
 					if (Info[i][j].getInfo() == '0') {
 						
@@ -249,7 +276,6 @@ public class Main extends Application {
 		while (numberFlags < flags) {
 			flagLocation +=  Integer.toString((int)(Math.random() * ROW_SIZE));
 			flagLocation +=  "," + Integer.toString((int)(Math.random() * COL_SIZE));
-//			System.out.println(flagLocation);
 			while (map.containsKey(flagLocation) || noFlagMap.containsKey(flagLocation)) {
 				flagLocation = "";
 				flagLocation +=  Integer.toString((int)(Math.random() * ROW_SIZE));
@@ -273,7 +299,6 @@ public class Main extends Application {
 					myTiles[row][col].setInfo('r');
 				}
 				else {
-//					System.out.println(minesInProximity(map, flagLocation, ROW_SIZE, COL_SIZE));
 					myTiles[row][col].setInfo((char)(minesInProximity(map, flagLocation, ROW_SIZE, COL_SIZE)+ '0'));
 
 				}
@@ -285,6 +310,14 @@ public class Main extends Application {
 		
 		System.out.println("Original configuration of the board:\n");
 		printInfo();		
+	}
+	
+	private void youLose() {
+		System.out.println("You lose");
+	}
+	
+	private void youWin() {
+		System.out.println("Congrats! You beat Minesweeper!");
 	}
 	
 	
