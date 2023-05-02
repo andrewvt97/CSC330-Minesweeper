@@ -34,6 +34,7 @@ public class Main extends Application {
 	private Tile myTiles[][] = new Tile[ROW_SIZE][COL_SIZE];
 	String mineLocation = "";
 	int numOfMines = 0;
+	int flagCounter = mines;
 	HashMap<String, Integer> mineLocationMap = new HashMap<String, Integer>();
 	HashMap<String, Integer> noMineMap = new HashMap<String, Integer>();
 	
@@ -111,7 +112,7 @@ public class Main extends Application {
 						}
 						
 						
-						System.out.println(safeTilesClicked);
+//						System.out.println(safeTilesClicked);
 						if (safeTilesClicked == safeTiles) {
 							youWin();
 						}
@@ -121,9 +122,10 @@ public class Main extends Application {
 
 						
 						if ((boolean)vbox.getProperties().containsKey("hasFlag")) {
-					
+							
 							vbox.getProperties().remove("hasFlag");
 							vbox.getChildren().clear();
+							flagCounter += 1;
 						}
 						else {
 							
@@ -131,7 +133,8 @@ public class Main extends Application {
 							Image minesweeperFlag = new Image(file.toURI().toString());
 							ImageView flagContainer = new ImageView(minesweeperFlag);
 							
-						
+							
+							
 							flagContainer.setFitWidth(40); // Set the width to 40 pixels
 							flagContainer.setFitHeight(40); // Set the height to 40 pixels
 							
@@ -139,12 +142,14 @@ public class Main extends Application {
 							
 							vbox.setAlignment(Pos.CENTER);
 						    vbox.getChildren().add(flagContainer);
+						    flagCounter -= 1;
+						    
 						}
 						
 
 					}
 					e.consume();
-					
+					System.out.println(flagCounter);
 
 				});
 				
@@ -226,6 +231,7 @@ public class Main extends Application {
 					if ((boolean)vbox.getProperties().containsKey("hasFlag")) {
 						vbox.getProperties().remove("hasFlag");
 						vbox.getChildren().clear();
+						flagCounter += 1;
 					}
 					vbox = (VBox) node;
 					safeTilesClicked += 1;
