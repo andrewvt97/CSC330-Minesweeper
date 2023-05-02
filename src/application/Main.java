@@ -65,7 +65,7 @@ public class Main extends Application {
 					Integer r1 = grid.getRowIndex(n);     
 					Integer c1 = grid.getColumnIndex(n); 
 
-					VBox vbox1 = (VBox)n;
+//					VBox vbox1 = (VBox)n; // not needed
 					
 					
 					if (e.getButton() == MouseButton.PRIMARY) {
@@ -84,7 +84,7 @@ public class Main extends Application {
 							createGame(r1, c1);
 						}
 					
-						
+						myTiles[r1][c1].setClickedState(true);
 						if (myTiles[r1][c1].getInfo() == 'r') {
 							
 							File file = new File("src/images/Minesweeper-Bomb.png");
@@ -99,19 +99,19 @@ public class Main extends Application {
 						    youLose();
 						}
 						else {
-							
+							tilesClicked += 1; // safe tiles clicked
 							vbox.setStyle("-fx-background-color: beige;");
 							if (myTiles[r1][c1].getInfo() == '0') {
 								findEmptyBlocks(r1,c1,grid, COL_SIZE, ROW_SIZE, myTiles);
 							}
 							else {
-								tilesClicked += 1;
+								
 								Text text = new Text(Character.toString(myTiles[r1][c1].getInfo()));
 							    vbox.setAlignment(Pos.CENTER);
 							    vbox.getChildren().add(text);
 							}
 						}
-						myTiles[r1][c1].setClickedState(true);
+						
 						
 						System.out.println(tilesClicked);
 						if (tilesClicked == tilesToWin) {
