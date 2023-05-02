@@ -15,15 +15,16 @@ public class Board {
     private int colSize;
     private int mines;
     private int safeTiles;
+    private int tileSpace;
+    private String level;
     private Tile[][] myTiles;
     private HashMap<String, Integer> mineLocationMap;
     private HashMap<String, Integer> noMineMap;
     
 	
-	public Board() {
-		rowSize = 8;
-		colSize = 10;
-		mines = 10;
+	public Board(String level) {
+		this.level = level;
+		setLevel(level);
 		safeTiles = rowSize * colSize - mines;
 		myTiles = new Tile[rowSize][colSize];
 		mineLocationMap = new HashMap<String, Integer>();
@@ -103,6 +104,56 @@ public class Board {
 	 */
 	public void setSafeTiles(int safeTiles) {
 		this.safeTiles = safeTiles;
+	}
+
+
+	/**
+	 * @return the tileSpace
+	 */
+	public int getTileSpace() {
+		return tileSpace;
+	}
+
+
+	/**
+	 * @param tileSpace the tileSpace to set
+	 */
+	public void setTileSpace(int tileSpace) {
+		this.tileSpace = tileSpace;
+	}
+
+
+	/**
+	 * @return the level
+	 */
+	public String getLevel() {
+		return level;
+	}
+
+
+	/**
+	 * @param level the level to set
+	 */
+	public void setLevel(String level) {
+		this.level = level;
+		if (level.equals("Easy")) {
+			rowSize = 8;
+			colSize = 10;
+			mines = 10;
+			tileSpace = 50;
+		}
+		else if (level.equals("Medium")) {
+			rowSize = 14;
+			colSize = 18;
+			mines = 40;
+			tileSpace = 40;
+		}
+		else {
+			rowSize = 20;
+			colSize = 24;
+			mines = 99;
+			tileSpace = 30;
+		}
 	}
 
 

@@ -34,7 +34,7 @@ public class Game {
 	
 	
 	public Game() {
-		board = new Board();
+		board = new Board("Hard");
 		grid = new GridPane();
 		isFirstClick = true;
 		safeTilesClicked = 0;
@@ -69,12 +69,15 @@ public class Game {
 		this.flagCounter = flagCounter;
 	}
 	
+	
+
 	public Scene createGrid() {
 		for(int row = 0; row < board.getRowSize(); row++) {
 			for(int col = 0; col < board.getColSize(); col++) {
 			
 				VBox vbox = new VBox();
-				vbox.setPrefSize(50, 50);
+				int tileSpace = board.getTileSpace();
+				vbox.setPrefSize(tileSpace, tileSpace);
 				 
 				vbox.setStyle("-fx-background-color: lightgreen;");
 				
@@ -160,8 +163,8 @@ public class Game {
 							
 							
 							
-							flagContainer.setFitWidth(40); // Set the width to 40 pixels
-							flagContainer.setFitHeight(40); // Set the height to 40 pixels
+							flagContainer.setFitWidth(tileSpace -10); // Set the width
+							flagContainer.setFitHeight(tileSpace - 10); // Set the height
 							
 							vbox.getProperties().put("hasFlag", true);
 							
