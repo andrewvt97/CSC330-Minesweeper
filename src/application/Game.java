@@ -20,6 +20,7 @@ import javafx.scene.layout.GridPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Text;
+import javafx.stage.Stage;
 
 /**
  * @author andre
@@ -29,16 +30,26 @@ public class Game {
 	private int safeTilesClicked;
 	private int flagCounter;
 	private boolean isFirstClick;
+	private String level;
+	private Stage primaryStage;
 	private Board board;
 	private GridPane grid;
 	
 	
-	public Game() {
-		board = new Board("Hard");
+	public Game(Stage primaryStage) {
+		this.primaryStage = primaryStage;
+		startGame("Easy");
+		
+	}
+	
+	public void startGame(String level) {
+		board = new Board(level);
 		grid = new GridPane();
 		isFirstClick = true;
 		safeTilesClicked = 0;
 		flagCounter = board.getMines();
+		
+		createGrid();
 	}
 
 	/**
@@ -71,7 +82,22 @@ public class Game {
 	
 	
 
-	public Scene createGrid() {
+	/**
+	 * @return the level
+	 */
+	public String getLevel() {
+		return level;
+	}
+
+	/**
+	 * @param level the level to set
+	 */
+	public void setLevel(String level) {
+		this.level = level;
+		startGame(level);
+	}
+
+	public void createGrid() {
 		for(int row = 0; row < board.getRowSize(); row++) {
 			for(int col = 0; col < board.getColSize(); col++) {
 			
@@ -118,8 +144,8 @@ public class Game {
 							Image minesweeperBomb = new Image(file.toURI().toString());
 							ImageView bombContainer = new ImageView(minesweeperBomb);
 							
-							bombContainer.setFitWidth(40); // Set the width to 40 pixels
-							bombContainer.setFitHeight(40); // Set the height to 40 pixels
+							bombContainer.setFitWidth(tileSpace - 10); // Set the width to 40 pixels
+							bombContainer.setFitHeight(tileSpace - 10); // Set the height to 40 pixels
 							vbox.setAlignment(Pos.CENTER);
 						    vbox.getChildren().add(bombContainer);
 						    
@@ -163,7 +189,7 @@ public class Game {
 							
 							
 							
-							flagContainer.setFitWidth(tileSpace -10); // Set the width
+							flagContainer.setFitWidth(tileSpace - 10); // Set the width
 							flagContainer.setFitHeight(tileSpace - 10); // Set the height
 							
 							vbox.getProperties().put("hasFlag", true);
@@ -185,7 +211,8 @@ public class Game {
 			}
 		}
 		Scene scene = new Scene(grid);  
-		return scene;
+		primaryStage.setScene(scene);
+        primaryStage.show();
 	}
 	
 	public void findEmptyBlocks(int row, int col) { // uses recursion

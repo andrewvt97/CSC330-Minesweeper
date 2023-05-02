@@ -16,15 +16,13 @@ public class Board {
     private int mines;
     private int safeTiles;
     private int tileSpace;
-    private String level;
     private Tile[][] myTiles;
     private HashMap<String, Integer> mineLocationMap;
     private HashMap<String, Integer> noMineMap;
     
 	
 	public Board(String level) {
-		this.level = level;
-		setLevel(level);
+		setConfigurations(level);
 		safeTiles = rowSize * colSize - mines;
 		myTiles = new Tile[rowSize][colSize];
 		mineLocationMap = new HashMap<String, Integer>();
@@ -123,19 +121,7 @@ public class Board {
 	}
 
 
-	/**
-	 * @return the level
-	 */
-	public String getLevel() {
-		return level;
-	}
-
-
-	/**
-	 * @param level the level to set
-	 */
-	public void setLevel(String level) {
-		this.level = level;
+	public void setConfigurations(String level) {
 		if (level.equals("Easy")) {
 			rowSize = 8;
 			colSize = 10;

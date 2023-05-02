@@ -10,9 +10,7 @@ public class Main extends Application {
 	@Override	
 	public void start(Stage primaryStage) {
 		
-		Game minesweeper = new Game();
-		primaryStage.setScene(minesweeper.createGrid());
-        primaryStage.show();
+		new Game(primaryStage);
 		
 	}
 	
