@@ -1,9 +1,7 @@
 package application;
 
 import javafx.application.Application;
-import javafx.geometry.HPos;
 import javafx.geometry.Pos;
-import javafx.geometry.VPos;
 import javafx.stage.Stage;
 import javafx.scene.Scene;
 import javafx.scene.image.Image;
@@ -30,14 +28,14 @@ public class Main extends Application {
 	private boolean isFirstClick = true;
 	private final int ROW_SIZE = 8;
 	private final int COL_SIZE = 10;
-	private final int flags = 10;
-	private final int tilesToWin = ROW_SIZE * COL_SIZE - flags;
-	private int tilesClicked = 0;
+	private final int mines = 10;
+	private final int safeTiles = ROW_SIZE * COL_SIZE - mines;
+	private int safeTilesClicked = 0;
 	private Tile myTiles[][] = new Tile[ROW_SIZE][COL_SIZE];
-	String flagLocation = "";
-	int numberFlags = 0;
-	HashMap<String, Integer> map = new HashMap<String, Integer>();
-	HashMap<String, Integer> noFlagMap = new HashMap<String, Integer>();
+	String mineLocation = "";
+	int numOfMines = 0;
+	HashMap<String, Integer> mineLocationMap = new HashMap<String, Integer>();
+	HashMap<String, Integer> noMineMap = new HashMap<String, Integer>();
 	
 	@Override	
 	public void start(Stage primaryStage) {
@@ -99,7 +97,7 @@ public class Main extends Application {
 						    youLose();
 						}
 						else {
-							tilesClicked += 1; // safe tiles clicked
+							safeTilesClicked += 1; // safe tiles clicked
 							vbox.setStyle("-fx-background-color: beige;");
 							if (myTiles[r1][c1].getInfo() == '0') {
 								findEmptyBlocks(r1,c1,grid, COL_SIZE, ROW_SIZE, myTiles);
@@ -113,8 +111,8 @@ public class Main extends Application {
 						}
 						
 						
-						System.out.println(tilesClicked);
-						if (tilesClicked == tilesToWin) {
+						System.out.println(safeTilesClicked);
+						if (safeTilesClicked == safeTiles) {
 							youWin();
 						}
 					}
@@ -175,27 +173,27 @@ public class Main extends Application {
 		System.out.println();
 	}
 	
-	private int minesInProximity(HashMap <String, Integer>map, String position, int rowSize, int colSize ) {
+	private int minesInProximity(HashMap <String, Integer>mineLocationMap, String position, int rowSize, int colSize ) {
 		
 		String location[] = position.split(",");
 		int row = Integer.parseInt(location[0]);
 		int column = Integer.parseInt(location[1]);
 		int mines = 0;
 		
-		// Don't need to worry about going out of bounds because the hash map takes care of that
-		String flagLocation = "";
+		// Don't need to worry about going out of bounds because the hash mineLocationMap takes care of that
+		String mineLocation = "";
 		
 		for (int i = row -1; i < row + 2; i++) {
 			for (int j = column - 1; j < column + 2; j++) {
 				// Do not need to care about avoiding checking current spot because it won't have a flag anyway
 				// This avoids the if statement check everytime although it checks 9 instead of 8
-				flagLocation +=  Integer.toString(i);
-				flagLocation +=  "," + Integer.toString(j);
-				if (map.containsKey(flagLocation)) {
+				mineLocation +=  Integer.toString(i);
+				mineLocation +=  "," + Integer.toString(j);
+				if (mineLocationMap.containsKey(mineLocation)) {
 					mines += 1;
 				}
 				
-				flagLocation = "";
+				mineLocation = "";
 			}
 		}
 		
@@ -230,7 +228,7 @@ public class Main extends Application {
 						vbox.getChildren().clear();
 					}
 					vbox = (VBox) node;
-					tilesClicked += 1;
+					safeTilesClicked += 1;
 					vbox.setStyle("-fx-background-color: beige;"); // change to css file later
 					if (Info[i][j].getInfo() == '0') {
 						
@@ -263,43 +261,43 @@ public class Main extends Application {
 				if (j < 0 || j >= COL_SIZE  ) {
 					continue;
 				}
-				flagLocation +=  Integer.toString(i);
-				flagLocation +=  "," + Integer.toString(j);
-				noFlagMap.put(flagLocation, 1);
-				flagLocation = "";
+				mineLocation +=  Integer.toString(i);
+				mineLocation +=  "," + Integer.toString(j);
+				noMineMap.put(mineLocation, 1);
+				mineLocation = "";
 					
 			}
 		}
 		
-		System.out.println(noFlagMap);
+		System.out.println(noMineMap);
 		
-		while (numberFlags < flags) {
-			flagLocation +=  Integer.toString((int)(Math.random() * ROW_SIZE));
-			flagLocation +=  "," + Integer.toString((int)(Math.random() * COL_SIZE));
-			while (map.containsKey(flagLocation) || noFlagMap.containsKey(flagLocation)) {
-				flagLocation = "";
-				flagLocation +=  Integer.toString((int)(Math.random() * ROW_SIZE));
-				flagLocation +=  "," + Integer.toString((int)(Math.random() * COL_SIZE));
+		while (numOfMines < mines) {
+			mineLocation +=  Integer.toString((int)(Math.random() * ROW_SIZE));
+			mineLocation +=  "," + Integer.toString((int)(Math.random() * COL_SIZE));
+			while (mineLocationMap.containsKey(mineLocation) || noMineMap.containsKey(mineLocation)) {
+				mineLocation = "";
+				mineLocation +=  Integer.toString((int)(Math.random() * ROW_SIZE));
+				mineLocation +=  "," + Integer.toString((int)(Math.random() * COL_SIZE));
 			}
-			map.put(flagLocation, 1);
-			numberFlags += 1;
-			flagLocation = "";
+			mineLocationMap.put(mineLocation, 1);
+			numOfMines += 1;
+			mineLocation = "";
 		}
 		
-		System.out.println(map);
+		System.out.println(mineLocationMap);
 	
 		
 	
 		for(int row = 0; row < ROW_SIZE; row++) {
 			
 			for(int col = 0; col < COL_SIZE; col++) {
-				flagLocation = Integer.toString(row) + "," + Integer.toString(col);
+				mineLocation = Integer.toString(row) + "," + Integer.toString(col);
 				myTiles[row][col] = new Tile();
-				if (map.containsKey(flagLocation)) {
+				if (mineLocationMap.containsKey(mineLocation)) {
 					myTiles[row][col].setInfo('r');
 				}
 				else {
-					myTiles[row][col].setInfo((char)(minesInProximity(map, flagLocation, ROW_SIZE, COL_SIZE)+ '0'));
+					myTiles[row][col].setInfo((char)(minesInProximity(mineLocationMap, mineLocation, ROW_SIZE, COL_SIZE)+ '0'));
 
 				}
 			}
