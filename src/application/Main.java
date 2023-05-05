@@ -10,7 +10,7 @@ public class Main extends Application {
 	@Override	
 	public void start(Stage primaryStage) {
 		
-		new Game(primaryStage);
+		new Minesweeper(primaryStage);
 		
 	}
 	

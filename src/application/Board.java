@@ -9,29 +9,30 @@ import java.util.HashMap;
  * @author andre
  *
  */
-public class Board {
+public abstract class Board {
 	
 	private int rowSize;
     private int colSize;
     private int mines;
     private int safeTiles;
-    private int tileSpace;
+    private int tileSize;
     private Tile[][] myTiles;
     private HashMap<String, Integer> mineLocationMap;
     private HashMap<String, Integer> noMineMap;
     
 	
-	public Board(String level) {
-		setConfigurations(level);
+	public Board() {
+		setConfigurations();
 		safeTiles = rowSize * colSize - mines;
 		myTiles = new Tile[rowSize][colSize];
+		initializeTiles();
 		mineLocationMap = new HashMap<String, Integer>();
 		noMineMap = new HashMap<String, Integer>();
 		
 	}
 
 	
-	public void intializeTiles() {
+	public void initializeTiles() {
 		for (int row = 0; row < rowSize; row++) {
             for (int col = 0; col < colSize; col++) {
                 myTiles[row][col] = new Tile();
@@ -106,40 +107,18 @@ public class Board {
 
 
 	/**
-	 * @return the tileSpace
+	 * @return the tileSize
 	 */
-	public int getTileSpace() {
-		return tileSpace;
+	public int getTileSize() {
+		return tileSize;
 	}
 
 
 	/**
-	 * @param tileSpace the tileSpace to set
+	 * @param tileSize the tileSize to set
 	 */
-	public void setTileSpace(int tileSpace) {
-		this.tileSpace = tileSpace;
-	}
-
-
-	public void setConfigurations(String level) {
-		if (level.equals("Easy")) {
-			rowSize = 8;
-			colSize = 10;
-			mines = 10;
-			tileSpace = 50;
-		}
-		else if (level.equals("Medium")) {
-			rowSize = 14;
-			colSize = 18;
-			mines = 40;
-			tileSpace = 40;
-		}
-		else {
-			rowSize = 20;
-			colSize = 24;
-			mines = 99;
-			tileSpace = 30;
-		}
+	public void setTileSize(int tileSize) {
+		this.tileSize = tileSize;
 	}
 
 
@@ -259,7 +238,8 @@ public class Board {
 		}
 		System.out.println();
 	}
-
-
 	
+	public abstract void setConfigurations();
+
+
 }
