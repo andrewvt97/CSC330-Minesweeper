@@ -187,20 +187,24 @@ public class Minesweeper implements Game {
 						}
 						else {
 							
-							File file = new File("src/images/Minesweeper-Flag.png");
-							Image minesweeperFlag = new Image(file.toURI().toString());
-							ImageView flagContainer = new ImageView(minesweeperFlag);
+							if (board.getMyTiles()[r1][c1].isClickedState() == false) {
 							
-							
-							
-							flagContainer.setFitWidth(tileSpace - 10); // Set the width
-							flagContainer.setFitHeight(tileSpace - 10); // Set the height
-							
-							vbox.getProperties().put("hasFlag", true);
-							
-							vbox.setAlignment(Pos.CENTER);
-						    vbox.getChildren().add(flagContainer);
-						    flagCounter -= 1;
+								File file = new File("src/images/Minesweeper-Flag.png");
+								Image minesweeperFlag = new Image(file.toURI().toString());
+								ImageView flagContainer = new ImageView(minesweeperFlag);
+								
+								
+								
+								flagContainer.setFitWidth(tileSpace - 10); // Set the width
+								flagContainer.setFitHeight(tileSpace - 10); // Set the height
+								
+								vbox.getProperties().put("hasFlag", true);
+								
+								vbox.setAlignment(Pos.CENTER);
+							    vbox.getChildren().add(flagContainer);
+							    flagCounter -= 1;
+						    
+							}
 						    
 						}
 						
