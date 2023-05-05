@@ -47,7 +47,16 @@ public class Minesweeper implements Game {
 	
 	@Override
 	public void startGame(String level) {
-		board = new Board(level);
+		if (level.equals("Easy")){
+				board = new EasyBoard();
+		}
+		else if (level.equals("Medium")){
+			board = new MediumBoard();
+		}
+		else {
+			board = new HardBoard();
+		}
+		
 		grid = new GridPane();
 		isFirstClick = true;
 		safeTilesClicked = 0;
@@ -106,8 +115,8 @@ public class Minesweeper implements Game {
 			for(int col = 0; col < board.getColSize(); col++) {
 			
 				VBox vbox = new VBox();
-				int tileSpace = board.getTileSpace();
-				vbox.setPrefSize(tileSpace, tileSpace);
+				int tileSize = board.getTileSize();
+				vbox.setPrefSize(tileSize, tileSize);
 				 
 				vbox.setStyle("-fx-background-color: lightgreen;");
 				
@@ -148,12 +157,14 @@ public class Minesweeper implements Game {
 							Image minesweeperBomb = new Image(file.toURI().toString());
 							ImageView bombContainer = new ImageView(minesweeperBomb);
 							
-							bombContainer.setFitWidth(tileSpace - 10); // Set the width to 40 pixels
-							bombContainer.setFitHeight(tileSpace - 10); // Set the height to 40 pixels
+							bombContainer.setFitWidth(tileSize - 10); // Set the width to 40 pixels
+							bombContainer.setFitHeight(tileSize - 10); // Set the height to 40 pixels
 							vbox.setAlignment(Pos.CENTER);
 						    vbox.getChildren().add(bombContainer);
 						    
 						    youLose();
+						    
+//						    setLevel("Hard"); testing set level function
 						}
 						else {
 							safeTilesClicked += 1; // safe tiles clicked
@@ -195,8 +206,8 @@ public class Minesweeper implements Game {
 								
 								
 								
-								flagContainer.setFitWidth(tileSpace - 10); // Set the width
-								flagContainer.setFitHeight(tileSpace - 10); // Set the height
+								flagContainer.setFitWidth(tileSize - 10); // Set the width
+								flagContainer.setFitHeight(tileSize - 10); // Set the height
 								
 								vbox.getProperties().put("hasFlag", true);
 								
