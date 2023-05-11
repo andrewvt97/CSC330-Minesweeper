@@ -20,4 +20,8 @@ public final class Constants {
 	public static final Image MINESIX = findNload("6.png");
 	public static final Image MINESEVEN = findNload("7.png");
 	public static final Image MINEEIGHT = findNload("8.png");
+	public static final Image BOMB = findNload("bomb.png");
+	public static final Image FLAG = findNload("flag.png");
+	
+	
 }
