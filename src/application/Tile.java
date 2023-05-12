@@ -5,10 +5,12 @@ public class Tile implements java.io.Serializable {
 	
 	private char info;
 	private boolean clickedState;
+	private boolean hasFlag;
 	
 	public Tile() {
 		info = 'x';
 		clickedState = false;
+		hasFlag = false;
 	}
 
 	/**
@@ -31,12 +33,20 @@ public class Tile implements java.io.Serializable {
 	public boolean isClickedState() {
 		return clickedState;
 	}
+	
+	public boolean hasFlag() {
+		return this.hasFlag;
+	}
 
 	/**
 	 * @param clickedState the clickedState to set
 	 */
 	public void setClickedState(boolean clickedState) {
 		this.clickedState = clickedState;
+	}
+	
+	public void setFlag(boolean hasFlag) {
+		this.hasFlag = hasFlag;
 	}
 
 }
