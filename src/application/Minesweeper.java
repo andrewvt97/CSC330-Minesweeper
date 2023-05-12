@@ -5,7 +5,6 @@ package application;
 
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
-import javafx.collections.ObservableList;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Group;
@@ -45,8 +44,6 @@ import static application.Constants.FLAG;
 import static application.Constants.MUTE;
 import static application.Constants.UNMUTE;
 import static application.Constants.C418;
-
-
 
 /**
  * @author andre
@@ -97,7 +94,6 @@ public class Minesweeper implements Game {
 		
 		//window handling
 		HBox top = new HBox();
-
 		Label timer = new Label("00:00");
 		StackPane centerP = new StackPane();
 		
@@ -110,7 +106,6 @@ public class Minesweeper implements Game {
 	}));
 		
 		timeline.setCycleCount(Timeline.INDEFINITE);
-		
 		
 		ImageView muteButton = createMuteButton(media);
 		media.setAutoPlay(true);
@@ -129,6 +124,9 @@ public class Minesweeper implements Game {
 		Node gameNode = grid;
 		Group MSG = new Group();
 		MSG.getChildren().add(gameNode);
+
+		top.setStyle("-fx-background-color: azure;");
+		centerP.setStyle("-fx-background-color: azure;");
 		
 		centerP.getChildren().add(MSG);
 		
