@@ -3,12 +3,9 @@
  */
 package application;
 
-import java.io.File;
-
 import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.Scene;
-import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseButton;
 import javafx.scene.layout.Border;
@@ -19,8 +16,10 @@ import javafx.scene.layout.CornerRadii;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
-import javafx.scene.text.Text;
 import javafx.stage.Stage;
+
+
+
 import static application.Constants.MINEONE;
 import static application.Constants.MINETWO;
 import static application.Constants.MINETHREE;
@@ -29,8 +28,8 @@ import static application.Constants.MINEFIVE;
 import static application.Constants.MINESIX;
 import static application.Constants.MINESEVEN;
 import static application.Constants.MINEEIGHT;
-
-
+import static application.Constants.BOMB;
+import static application.Constants.FLAG;
 
 
 /**
@@ -49,9 +48,10 @@ public class Minesweeper implements Game {
 	
 	
 	
+	
 	public Minesweeper(Stage primaryStage) {
 		this.primaryStage = primaryStage;
-		startGame("Easy");
+		startGame("Medium");
 		
 	}
 	
@@ -163,14 +163,15 @@ public class Minesweeper implements Game {
 						board.getMyTiles()[r1][c1].setClickedState(true);
 						if (board.getMyTiles()[r1][c1].getInfo() == 'r') {
 							
-							File file = new File("src/images/Minesweeper-Bomb.png");
-							Image minesweeperBomb = new Image(file.toURI().toString());
-							ImageView bombContainer = new ImageView(minesweeperBomb);
+							//File file = new File("src/images/Minesweeper-Bomb.png");
+							//Image minesweeperBomb = new Image(file.toURI().toString());
+							ImageView bombContainer = new ImageView(BOMB);
 							
 							bombContainer.setFitWidth(tileSize - 10); // Set the width to 40 pixels
 							bombContainer.setFitHeight(tileSize - 10); // Set the height to 40 pixels
 							vbox.setAlignment(Pos.CENTER);
 						    vbox.getChildren().add(bombContainer);
+						    vbox.setStyle("-fx-background-color: beige;");
 						    
 						    youLose();
 						    
@@ -210,11 +211,9 @@ public class Minesweeper implements Game {
 							
 							if (board.getMyTiles()[r1][c1].isClickedState() == false) {
 							
-								File file = new File("src/images/Minesweeper-Flag.png");
-								Image minesweeperFlag = new Image(file.toURI().toString());
-								ImageView flagContainer = new ImageView(minesweeperFlag);
-								
-								
+								//File file = new File("src/images/Minesweeper-Flag.png");
+								//Image minesweeperFlag = new Image(file.toURI().toString());
+								ImageView flagContainer = new ImageView(FLAG);
 								
 								flagContainer.setFitWidth(tileSize - 10); // Set the width
 								flagContainer.setFitHeight(tileSize - 10); // Set the height
@@ -239,6 +238,7 @@ public class Minesweeper implements Game {
 				grid.add(vbox, col, row);
 			}
 		}
+		
 		Scene scene = new Scene(grid);  
 		primaryStage.setScene(scene);
         primaryStage.show();
@@ -336,4 +336,8 @@ public class Minesweeper implements Game {
 		}
 	}
 	
+	
+	public Node getNode() {
+		return grid;
+	}
 }
