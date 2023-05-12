@@ -1,6 +1,7 @@
 package application;
 
 import javafx.scene.image.Image;
+import javafx.scene.media.Media;
 import java.io.InputStream;
 
 public final class Constants {
@@ -22,6 +23,8 @@ public final class Constants {
 	public static final Image MINEEIGHT = findNload("8.png");
 	public static final Image BOMB = findNload("bomb.png");
 	public static final Image FLAG = findNload("flag.png");
+	public static final Image MUTE = findNload("mute.png");
+	public static final Image UNMUTE = findNload("unmute.png");
 	
-	
+	public static final Media C418 = new Media("https://vgmsite.com/soundtracks/minecraft/limpitozea/Volume%20Alpha%2021.%20Danny.mp3");
 }
