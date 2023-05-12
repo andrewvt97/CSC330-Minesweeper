@@ -20,6 +20,7 @@ public class Main extends Application {
 	
 	@Override	
 	public void start(Stage primaryStage) {
+		primaryStage.setResizable(false);
 		new Minesweeper(primaryStage);	
 	}
 	

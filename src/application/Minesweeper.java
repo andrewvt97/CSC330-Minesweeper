@@ -5,6 +5,7 @@ package application;
 
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
+import javafx.collections.ObservableList;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Group;
@@ -29,6 +30,7 @@ import javafx.scene.text.Text;
 import javafx.scene.text.Font;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
+import javafx.scene.media.MediaPlayer;
 
 import static application.Constants.MINEONE;
 import static application.Constants.MINETWO;
@@ -40,6 +42,10 @@ import static application.Constants.MINESEVEN;
 import static application.Constants.MINEEIGHT;
 import static application.Constants.BOMB;
 import static application.Constants.FLAG;
+import static application.Constants.MUTE;
+import static application.Constants.UNMUTE;
+import static application.Constants.C418;
+
 
 
 /**
@@ -61,6 +67,7 @@ public class Minesweeper implements Game {
 	private int seconds = 0;
 	BorderPane bp = new BorderPane();
 	Scene container = new Scene(bp, 800, 650);
+	MediaPlayer media = new MediaPlayer(C418);
 	
 	public Minesweeper(Stage primaryStage) {
 		this.primaryStage = primaryStage;
@@ -90,10 +97,11 @@ public class Minesweeper implements Game {
 		
 		//window handling
 		HBox top = new HBox();
+
 		Label timer = new Label("00:00");
 		StackPane centerP = new StackPane();
-		timer.setStyle("-fx-font: 24 impact;");
 		
+		timer.setStyle("-fx-font: 24 impact;");
 		timeline = new Timeline(new KeyFrame(Duration.seconds(1), event -> {
 				seconds++;
 				int minutes = seconds / 60;
@@ -103,11 +111,17 @@ public class Minesweeper implements Game {
 		
 		timeline.setCycleCount(Timeline.INDEFINITE);
 		
-		top.setAlignment(Pos.CENTER_RIGHT);
+		
+		ImageView muteButton = createMuteButton(media);
+		media.setAutoPlay(true);
+		
+		top.setSpacing(50);
+		top.setAlignment(Pos.CENTER);
 		top.setPadding(new Insets(10, 10, 10, 10));
-		top.getChildren().add(timer);
+		top.getChildren().addAll(muteButton, timer);
 		
 		bp.setTop(top);
+		//bp.getChildren().addAll(time);
 		
 		centerP.setPadding(new Insets(10, 10, 10, 10));
 		centerP.setAlignment(Pos.CENTER);
@@ -439,4 +453,25 @@ public class Minesweeper implements Game {
 	public Node getNode() {
 		return grid;
 	}
+	
+	public static ImageView createMuteButton(MediaPlayer media) {
+        ImageView imageView = new ImageView(UNMUTE);
+        
+        imageView.setFitWidth(50);
+        imageView.setFitHeight(50);
+
+        imageView.setOnMouseClicked(event -> {
+            if (media.isMute()) {
+                media.setMute(false);
+                imageView.setImage(UNMUTE);
+            } else {
+                media.setMute(true);
+                imageView.setImage(MUTE);
+            }
+        });
+
+        return imageView;
+	}
+	
 }
+
