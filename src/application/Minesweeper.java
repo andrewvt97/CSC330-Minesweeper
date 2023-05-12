@@ -3,22 +3,32 @@
  */
 package application;
 
+import javafx.animation.KeyFrame;
+import javafx.animation.Timeline;
+import javafx.geometry.Insets;
 import javafx.geometry.Pos;
+import javafx.scene.Group;
 import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseButton;
 import javafx.scene.layout.Border;
+import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.BorderStroke;
 import javafx.scene.layout.BorderStrokeStyle;
 import javafx.scene.layout.BorderWidths;
 import javafx.scene.layout.CornerRadii;
 import javafx.scene.layout.GridPane;
+import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.stage.Stage;
-
-
+import javafx.util.Duration;
+import javafx.scene.layout.StackPane;
+import javafx.scene.text.Text;
+import javafx.scene.text.Font;
+import javafx.scene.control.Button;
+import javafx.scene.control.Label;
 
 import static application.Constants.MINEONE;
 import static application.Constants.MINETWO;
@@ -45,9 +55,12 @@ public class Minesweeper implements Game {
 	private Stage primaryStage;
 	private Board board;
 	private GridPane grid;
+	private boolean notBeaten = true;
+	private Timeline timeline;
 	
-	
-	
+	private int seconds = 0;
+	BorderPane bp = new BorderPane();
+	Scene container = new Scene(bp, 800, 650);
 	
 	public Minesweeper(Stage primaryStage) {
 		this.primaryStage = primaryStage;
@@ -57,6 +70,7 @@ public class Minesweeper implements Game {
 	
 	@Override
 	public void startGame(String level) {
+		//relocated handling of windows to startGame. 
 		if (level.equals("Easy")){
 				board = new EasyBoard();
 		}
@@ -73,6 +87,43 @@ public class Minesweeper implements Game {
 		flagCounter = board.getMines();
 		
 		createGrid();
+		
+		//window handling
+		HBox top = new HBox();
+		Label timer = new Label("00:00");
+		StackPane centerP = new StackPane();
+		timer.setStyle("-fx-font: 24 impact;");
+		
+		timeline = new Timeline(new KeyFrame(Duration.seconds(1), event -> {
+				seconds++;
+				int minutes = seconds / 60;
+				int remaining = seconds % 60;
+				timer.setText(String.format("%02d:%02d", minutes, remaining));
+	}));
+		
+		timeline.setCycleCount(Timeline.INDEFINITE);
+		
+		top.setAlignment(Pos.CENTER_RIGHT);
+		top.setPadding(new Insets(10, 10, 10, 10));
+		top.getChildren().add(timer);
+		
+		bp.setTop(top);
+		
+		centerP.setPadding(new Insets(10, 10, 10, 10));
+		centerP.setAlignment(Pos.CENTER);
+		
+		Node gameNode = grid;
+		Group MSG = new Group();
+		MSG.getChildren().add(gameNode);
+		
+		centerP.getChildren().add(MSG);
+		
+		bp.setCenter(centerP);
+		
+		primaryStage.setScene(container);
+		
+		timeline.play();
+		
 	}
 
 	/**
@@ -121,6 +172,10 @@ public class Minesweeper implements Game {
 	}
 
 	public void createGrid() {
+		Scene scene = new Scene(grid);  
+		primaryStage.setScene(scene);
+        primaryStage.show();
+		
 		for(int row = 0; row < board.getRowSize(); row++) {
 			for(int col = 0; col < board.getColSize(); col++) {
 			
@@ -143,6 +198,7 @@ public class Minesweeper implements Game {
 
 //						VBox vbox1 = (VBox)n; // not needed
 					
+					if (notBeaten) {
 					
 					if (e.getButton() == MouseButton.PRIMARY) {
 						
@@ -198,8 +254,7 @@ public class Minesweeper implements Game {
 						}
 					}
 					else if (e.getButton() == MouseButton.SECONDARY) {
-						
-
+						//youWin(primaryStage, container); //debugging                                            josh note :)
 						
 						if ((boolean)vbox.getProperties().containsKey("hasFlag")) {
 							
@@ -232,16 +287,18 @@ public class Minesweeper implements Game {
 					}
 					e.consume();
 					System.out.println(flagCounter);
-
+					}
+					else {
+						
+					}
 				});
+			
 				
 				grid.add(vbox, col, row);
 			}
 		}
 		
-		Scene scene = new Scene(grid);  
-		primaryStage.setScene(scene);
-        primaryStage.show();
+		
 	}
 	
 	public void findEmptyBlocks(int row, int col) { // uses recursion
@@ -296,13 +353,55 @@ public class Minesweeper implements Game {
 	
 	@Override
 	public void youWin() {
+		StackPane winPane = new StackPane();
+		Scene winScene = new Scene(winPane, 800, 650);
+		Button closeButton = new Button("Close");
+        closeButton.setOnAction(event -> {
+        	primaryStage.setScene(container);
+        	primaryStage.show();
+        }); 
+        
+        winPane.setStyle("-fx-background-color: rgba(0, 0, 0, 0.5);"); 
+        Text winText = new Text("You Win!");
+        winText.setFont(new Font(36));
+        
+        StackPane.setAlignment(winText, javafx.geometry.Pos.CENTER);
+        StackPane.setAlignment(closeButton, javafx.geometry.Pos.BOTTOM_CENTER);
+        winPane.getChildren().addAll(winText, closeButton);
+       
+        timeline.stop();
+        
+        primaryStage.setScene(winScene);
+        primaryStage.show();
+        
 		System.out.println("Congrats! You beat Minesweeper!");
 
 	}
 
 	@Override
 	public void youLose() {
-		System.out.println("You lose");
+		StackPane winPane = new StackPane();
+		Scene winScene = new Scene(winPane, 800, 650);
+		Button closeButton = new Button("Close");
+        closeButton.setOnAction(event -> {
+        	primaryStage.setScene(container);
+        	primaryStage.show();
+        }); 
+        
+        winPane.setStyle("-fx-background-color: rgba(0, 0, 0, 0.5);"); 
+        Text winText = new Text("You Lost... :(");
+        winText.setFont(new Font(36));
+        
+        StackPane.setAlignment(winText, javafx.geometry.Pos.CENTER);
+        StackPane.setAlignment(closeButton, javafx.geometry.Pos.BOTTOM_CENTER);
+        winPane.getChildren().addAll(winText, closeButton);
+       
+        timeline.stop();
+        
+        primaryStage.setScene(winScene);
+        primaryStage.show();
+		
+		System.out.println("You lose. :(");
 
 	}
 	
