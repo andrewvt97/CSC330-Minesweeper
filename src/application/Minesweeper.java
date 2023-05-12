@@ -34,6 +34,14 @@ import javafx.scene.control.RadioMenuItem;
 import javafx.scene.control.SeparatorMenuItem;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.control.ToggleGroup;
+import static application.Constants.MINEONE;
+import static application.Constants.MINETWO;
+import static application.Constants.MINETHREE;
+import static application.Constants.MINEFOUR;
+import static application.Constants.MINEFIVE;
+import static application.Constants.MINESIX;
+import static application.Constants.MINESEVEN;
+import static application.Constants.MINEEIGHT;
 
 
 /**
@@ -275,9 +283,9 @@ public class Minesweeper implements Game {
 							}
 							else {
 								
-								Text text = new Text(Character.toString(board.getMyTiles()[r1][c1].getInfo()));
+								String text = new String(Character.toString(board.getMyTiles()[r1][c1].getInfo()));
 							    vbox.setAlignment(Pos.CENTER);
-							    vbox.getChildren().add(text);
+							    setMineNum(text, vbox);
 							}
 						}
 						
@@ -340,7 +348,8 @@ public class Minesweeper implements Game {
 	public void findEmptyBlocks(int row, int col) { // uses recursion
 		Node node;
 		VBox vbox = new VBox();
-		Text text;
+		//Text text;
+		String text;
 		
 		for (int i = row -1; i < row + 2; i++) {
 			if (i < 0 || i >= board.getRowSize()) {
@@ -372,9 +381,11 @@ public class Minesweeper implements Game {
 					else  { // must be another number then
 						
 						board.getMyTiles()[i][j].setClickedState(true);
-						text = new Text(Character.toString(board.getMyTiles()[i][j].getInfo()));
+						//images here!			
 						vbox.setAlignment(Pos.CENTER);
-						vbox.getChildren().add(text);
+						text = new String(Character.toString(board.getMyTiles()[i][j].getInfo()));
+						setMineNum(text, vbox);
+						//vbox.getChildren().add(text);
 					}
 				}
 				
@@ -394,6 +405,36 @@ public class Minesweeper implements Game {
 	public void youLose() {
 		System.out.println("You lose");
 
+	}
+	
+	public void setMineNum(String s, VBox v) {
+		int leNumber = Integer.parseInt(s);
+		switch (leNumber) {
+		case 1:
+			v.getChildren().add(new ImageView(MINEONE));
+			break;
+		case 2:
+			v.getChildren().add(new ImageView(MINETWO));
+			break;
+		case 3:
+			v.getChildren().add(new ImageView(MINETHREE));
+			break;
+		case 4:
+			v.getChildren().add(new ImageView(MINEFOUR));
+			break;
+		case 5:
+			v.getChildren().add(new ImageView(MINEFIVE));
+			break;
+		case 6:
+			v.getChildren().add(new ImageView(MINESIX));
+			break;
+		case 7:
+			v.getChildren().add(new ImageView(MINESEVEN));
+			break;
+		case 8:
+			v.getChildren().add(new ImageView(MINEEIGHT));
+			break;
+		}
 	}
 	
 }
