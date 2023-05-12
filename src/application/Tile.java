@@ -1,6 +1,7 @@
 package application;
+import java.io.Serializable;
 
-public class Tile {
+public class Tile implements java.io.Serializable {
 	
 	private char info;
 	private boolean clickedState;

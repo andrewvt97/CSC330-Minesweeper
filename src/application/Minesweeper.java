@@ -4,6 +4,11 @@
 package application;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.util.Scanner;
 
 import javafx.geometry.Pos;
 import javafx.scene.Node;
@@ -21,6 +26,14 @@ import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
+import javafx.scene.control.MenuBar; 
+import javafx.scene.control.Menu; 
+import javafx.scene.control.MenuItem; 
+import javafx.scene.control.CheckMenuItem; 
+import javafx.scene.control.RadioMenuItem; 
+import javafx.scene.control.SeparatorMenuItem;
+import javafx.scene.layout.BorderPane;
+import javafx.scene.control.ToggleGroup;
 
 
 /**
@@ -36,26 +49,113 @@ public class Minesweeper implements Game {
 	private Stage primaryStage;
 	private Board board;
 	private GridPane grid;
-	
+	private BorderPane borderPane;
+
 	
 	
 	public Minesweeper(Stage primaryStage) {
+		this.board = new EasyBoard();
 		this.primaryStage = primaryStage;
-		startGame("Easy");
+		MenuBar menuBar = new MenuBar();
+		Menu fileMenu = new Menu("File");
+		MenuItem exitMenuItem = new MenuItem("Exit");
+		MenuItem saveGameMenuItem = new MenuItem("Save Game");
+		MenuItem loadGameMenuItem = new MenuItem("Load Game");
+		
+		
+		exitMenuItem.setOnAction(event -> {
+			primaryStage.close();
+		});
+		
+		saveGameMenuItem.setOnAction(event -> {
+			try {		
+				ObjectOutputStream output = new ObjectOutputStream(new FileOutputStream("./ms.dat"));
+				output.writeObject(this.board);
+				output.close();
+			} catch (Exception e) {
+				System.out.println("Error writing board to file.");
+				e.printStackTrace();
+			}				
+		});
+		
+		loadGameMenuItem.setOnAction(event -> {
+			try {				
+				//Let's load our data.
+				ObjectInputStream oit = new ObjectInputStream(new FileInputStream("./ms.dat"));
+				this.board = (Board) oit.readObject();
+				oit.close();
+				startGame(this.board);
+			} catch (Exception e) {
+				System.out.println("Error!!!!");
+				e.printStackTrace();
+			}
+		});
+		
+		fileMenu.getItems().addAll(saveGameMenuItem, loadGameMenuItem, exitMenuItem);
+		
+		Menu gameMenu = new Menu("Game");
+		RadioMenuItem easyRadioMenuItem = new RadioMenuItem("Easy");
+		RadioMenuItem mediumRadioMenuItem = new RadioMenuItem("Medium");
+		RadioMenuItem hardRadioMenuItem = new RadioMenuItem("Hard");
+		
+		easyRadioMenuItem.setOnAction(event -> {
+			this.board = new EasyBoard();
+			startGame(this.board);
+		});
+		
+		mediumRadioMenuItem.setOnAction(event -> {
+			this.board = new MediumBoard();
+			startGame(this.board);
+		});
+		
+		hardRadioMenuItem.setOnAction(event -> {
+			this.board = new HardBoard();
+			startGame(this.board);
+		});
+
+		/*
+		loadGameMenuItem.setOnAction(event -> {
+			// read board object from data
+			 ObjectInputStream oit = new ObjectInputStream(new FileInputStream("ttt.dat"));
+			 this.board = oit.readObject();
+			 byte[] gameModeBytes = (byte []) oit.readObject();
+			 this.gameMode = new String(gameModeBytes);
+			 this.startGame(this.board);
+		});
+		
+		**writeUTF for strings
+		
+		**Original config of board
+		**isClicked, is SafeTilesClicked
+		**Need to save isFlag locations
+		
+		*/
+		
+		
+		ToggleGroup gameModeToggleGroup = new ToggleGroup();
+		
+		easyRadioMenuItem.setToggleGroup(gameModeToggleGroup);
+		mediumRadioMenuItem.setToggleGroup(gameModeToggleGroup);
+		hardRadioMenuItem.setToggleGroup(gameModeToggleGroup);
+		
+		gameMenu.getItems().addAll(easyRadioMenuItem, mediumRadioMenuItem, hardRadioMenuItem);
+			
+		menuBar.getMenus().addAll(fileMenu, gameMenu);
+		
+		this.borderPane = new BorderPane();
+		this.borderPane.setTop(menuBar);
+		
+		startGame(this.board);
 		
 	}
 	
 	@Override
-	public void startGame(String level) {
-		if (level.equals("Easy")){
-				board = new EasyBoard();
-		}
-		else if (level.equals("Medium")){
-			board = new MediumBoard();
-		}
-		else {
-			board = new HardBoard();
-		}
+	public void startGame(Board board/* String level */) {
+		/*
+		 * if (level.equals("Easy")){ board = new EasyBoard(); } else if
+		 * (level.equals("Medium")){ board = new MediumBoard(); } else { board = new
+		 * HardBoard(); }
+		 */
 		
 		grid = new GridPane();
 		isFirstClick = true;
@@ -105,16 +205,17 @@ public class Minesweeper implements Game {
 	/**
 	 * @param level the level to set
 	 */
-	public void setLevel(String level) {
-		this.level = level;
-		startGame(level);
-	}
+//	public void setLevel(String level) {
+//		this.level = level;
+//		startGame(level);
+//	}
 
 	public void createGrid() {
 		for(int row = 0; row < board.getRowSize(); row++) {
 			for(int col = 0; col < board.getColSize(); col++) {
 			
 				VBox vbox = new VBox();
+			
 				int tileSize = board.getTileSize();
 				vbox.setPrefSize(tileSize, tileSize);
 				 
@@ -229,7 +330,9 @@ public class Minesweeper implements Game {
 				grid.add(vbox, col, row);
 			}
 		}
-		Scene scene = new Scene(grid);  
+		
+		VBox root = new VBox(this.borderPane, grid);
+		Scene scene = new Scene(root);
 		primaryStage.setScene(scene);
         primaryStage.show();
 	}
