@@ -109,6 +109,7 @@ public class Minesweeper implements Game {
 		
 		ImageView muteButton = createMuteButton(media);
 		media.setAutoPlay(true);
+		media.setVolume(0.19f);
 		
 		top.setSpacing(50);
 		top.setAlignment(Pos.CENTER);
