@@ -1,22 +1,29 @@
 package application;
 
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+
+import javafx.animation.KeyFrame;
+import javafx.animation.Timeline;
+import javafx.geometry.Insets;
 import javafx.geometry.Pos;
+import javafx.scene.Group;
 import javafx.scene.Node;
 import javafx.scene.Scene;
-import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseButton;
 import javafx.scene.layout.Border;
+import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.BorderStroke;
 import javafx.scene.layout.BorderStrokeStyle;
 import javafx.scene.layout.BorderWidths;
 import javafx.scene.layout.CornerRadii;
 import javafx.scene.layout.GridPane;
+import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.stage.Stage;
@@ -26,6 +33,14 @@ import javafx.scene.control.MenuItem;
 import javafx.scene.control.RadioMenuItem;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.control.ToggleGroup;
+import javafx.util.Duration;
+import javafx.scene.layout.StackPane;
+import javafx.scene.text.Text;
+import javafx.scene.text.Font;
+import javafx.scene.control.Button;
+import javafx.scene.control.Label;
+import javafx.scene.media.MediaPlayer;
+
 import static application.Constants.MINEONE;
 import static application.Constants.MINETWO;
 import static application.Constants.MINETHREE;
@@ -34,6 +49,11 @@ import static application.Constants.MINEFIVE;
 import static application.Constants.MINESIX;
 import static application.Constants.MINESEVEN;
 import static application.Constants.MINEEIGHT;
+import static application.Constants.BOMB;
+import static application.Constants.FLAG;
+import static application.Constants.MUTE;
+import static application.Constants.UNMUTE;
+import static application.Constants.C418;
 
 /**
  * @author andre
@@ -51,15 +71,21 @@ public class Minesweeper implements Game {
 	private GridPane grid;
 	private BorderPane borderPane;
 
+	private boolean notBeaten = true;
+	private Timeline timeline;
+	
+	private int seconds = 0;
+	BorderPane bp = new BorderPane();
+	Scene container = new Scene(bp, 800, 650);
+	MediaPlayer media = new MediaPlayer(C418);
+
 	public Minesweeper(Stage primaryStage) {
 		this.board = new EasyBoard();
 		this.primaryStage = primaryStage;
 		this.flagCounter = this.board.getMines();
-
 		this.initializeMenuUI();
 
 		startGame(this.board);
-
 	}
 
 	/**
@@ -74,6 +100,7 @@ public class Minesweeper implements Game {
 		MenuItem exitMenuItem = new MenuItem("Exit");
 		MenuItem saveGameMenuItem = new MenuItem("Save Game");
 		MenuItem loadGameMenuItem = new MenuItem("Load Game");
+
 		
 
 		exitMenuItem.setOnAction(event -> {
@@ -159,12 +186,63 @@ public class Minesweeper implements Game {
 		if(this.isFirstClick == false && this.isLoadedGame == true) {
 			this.grid = new GridPane();
 			createGrid();
+
 		}
 		else {
 			this.isFirstClick = true;
 			this.grid = new GridPane();
 			createGrid();
 		}
+		
+// 		isFirstClick = true;
+		safeTilesClicked = 0;
+		flagCounter = board.getMines();
+		
+		
+		//window handling
+		HBox top = new HBox();
+		Label timer = new Label("00:00");
+		StackPane centerP = new StackPane();
+		
+		timer.setStyle("-fx-font: 24 impact;");
+		timeline = new Timeline(new KeyFrame(Duration.seconds(1), event -> {
+				seconds++;
+				int minutes = seconds / 60;
+				int remaining = seconds % 60;
+				timer.setText(String.format("%02d:%02d", minutes, remaining));
+	}));
+		
+		timeline.setCycleCount(Timeline.INDEFINITE);
+		
+		ImageView muteButton = createMuteButton(media);
+		media.setAutoPlay(true);
+		
+		top.setSpacing(50);
+		top.setAlignment(Pos.CENTER);
+		top.setPadding(new Insets(10, 10, 10, 10));
+		top.getChildren().addAll(muteButton, timer);
+		
+		bp.setTop(top);
+		//bp.getChildren().addAll(time);
+		
+		centerP.setPadding(new Insets(10, 10, 10, 10));
+		centerP.setAlignment(Pos.CENTER);
+		
+		Node gameNode = grid;
+		Group MSG = new Group();
+		MSG.getChildren().add(gameNode);
+
+		top.setStyle("-fx-background-color: azure;");
+		centerP.setStyle("-fx-background-color: azure;");
+		
+		centerP.getChildren().add(MSG);
+		
+		bp.setCenter(centerP);
+		
+		primaryStage.setScene(container);
+		
+		timeline.play();
+	
 	}
 
 	/**
@@ -254,9 +332,13 @@ public class Minesweeper implements Game {
 	 * Creates the grid for the game
 	 */
 	public void createGrid() {
-		for (int row = 0; row < board.getRowSize(); row++) {
-			for (int col = 0; col < board.getColSize(); col++) {
-
+		Scene scene = new Scene(grid);  
+		primaryStage.setScene(scene);
+        primaryStage.show();
+		
+		for(int row = 0; row < board.getRowSize(); row++) {
+			for(int col = 0; col < board.getColSize(); col++) {
+			
 				VBox vbox = new VBox();
 
 				int tileSize = board.getTileSize();
@@ -275,7 +357,8 @@ public class Minesweeper implements Game {
 					Node n = (Node) e.getSource();
 					Integer r1 = GridPane.getRowIndex(n);
 					Integer c1 = GridPane.getColumnIndex(n);
-
+					
+			if (notBeaten) {
 					if (e.getButton() == MouseButton.PRIMARY) {
 
 						if ((boolean) vbox.getProperties().containsKey("hasFlag")) {
@@ -293,20 +376,18 @@ public class Minesweeper implements Game {
 
 						board.getMyTiles()[r1][c1].setClickedState(true);
 						if (board.getMyTiles()[r1][c1].getInfo() == 'r') {
-
-							File file = new File("src/images/Minesweeper-Bomb.png");
-							Image minesweeperBomb = new Image(file.toURI().toString());
-							ImageView bombContainer = new ImageView(minesweeperBomb);
-
+							ImageView bombContainer = new ImageView(BOMB);
+							
 							bombContainer.setFitWidth(tileSize - 10); // Set the width to 40 pixels
 							bombContainer.setFitHeight(tileSize - 10); // Set the height to 40 pixels
 							vbox.setAlignment(Pos.CENTER);
-							vbox.getChildren().add(bombContainer);
-
-							youLose();
-
-							// setLevel("Hard"); testing set level function
-						} else {
+						    vbox.getChildren().add(bombContainer);
+						    vbox.setStyle("-fx-background-color: beige;");
+						    
+						    youLose();
+						    
+						}
+						else {
 							safeTilesClicked += 1; // safe tiles clicked
 							vbox.setStyle("-fx-background-color: beige;");
 							if (board.getMyTiles()[r1][c1].getInfo() == '0') {
@@ -322,21 +403,22 @@ public class Minesweeper implements Game {
 						if (safeTilesClicked == board.getSafeTiles()) {
 							youWin();
 						}
-					} else if (e.getButton() == MouseButton.SECONDARY) {
 
-						if ((boolean) vbox.getProperties().containsKey("hasFlag")) {
-							this.board.getMyTiles()[r1][c1].setFlag(false);
+					}
+					else if (e.getButton() == MouseButton.SECONDARY) {
+						//youWin(primaryStage, container); //debugging                                            josh note :)
+						
+						if ((boolean)vbox.getProperties().containsKey("hasFlag")) {
+							
 							vbox.getProperties().remove("hasFlag");
 							vbox.getChildren().clear();
 							flagCounter += 1;
-						} else {
-
-							if (this.board.getMyTiles()[r1][c1].isClickedState() == false) {
-
-								File file = new File("src/images/Minesweeper-Flag.png");
-								Image minesweeperFlag = new Image(file.toURI().toString());
-								ImageView flagContainer = new ImageView(minesweeperFlag);
-
+						}
+						else {
+							
+							if (board.getMyTiles()[r1][c1].isClickedState() == false) {
+								ImageView flagContainer = new ImageView(FLAG);
+								
 								flagContainer.setFitWidth(tileSize - 10); // Set the width
 								flagContainer.setFitHeight(tileSize - 10); // Set the height
 
@@ -354,7 +436,10 @@ public class Minesweeper implements Game {
 					}
 					e.consume();
 					System.out.println(flagCounter);
-
+					}
+					else {
+						
+					}
 				});
 
 				grid.add(vbox, col, row);
@@ -415,13 +500,55 @@ public class Minesweeper implements Game {
 
 	@Override
 	public void youWin() {
+		StackPane winPane = new StackPane();
+		Scene winScene = new Scene(winPane, 800, 650);
+		Button closeButton = new Button("Close");
+        closeButton.setOnAction(event -> {
+        	primaryStage.setScene(container);
+        	primaryStage.show();
+        }); 
+        
+        winPane.setStyle("-fx-background-color: rgba(0, 0, 0, 0.5);"); 
+        Text winText = new Text("You Win!");
+        winText.setFont(new Font(36));
+        
+        StackPane.setAlignment(winText, javafx.geometry.Pos.CENTER);
+        StackPane.setAlignment(closeButton, javafx.geometry.Pos.BOTTOM_CENTER);
+        winPane.getChildren().addAll(winText, closeButton);
+       
+        timeline.stop();
+        
+        primaryStage.setScene(winScene);
+        primaryStage.show();
+        
 		System.out.println("Congrats! You beat Minesweeper!");
 
 	}
 
 	@Override
 	public void youLose() {
-		System.out.println("You lose");
+		StackPane winPane = new StackPane();
+		Scene winScene = new Scene(winPane, 800, 650);
+		Button closeButton = new Button("Close");
+        closeButton.setOnAction(event -> {
+        	primaryStage.setScene(container);
+        	primaryStage.show();
+        }); 
+        
+        winPane.setStyle("-fx-background-color: rgba(0, 0, 0, 0.5);"); 
+        Text winText = new Text("You Lost... :(");
+        winText.setFont(new Font(36));
+        
+        StackPane.setAlignment(winText, javafx.geometry.Pos.CENTER);
+        StackPane.setAlignment(closeButton, javafx.geometry.Pos.BOTTOM_CENTER);
+        winPane.getChildren().addAll(winText, closeButton);
+       
+        timeline.stop();
+        
+        primaryStage.setScene(winScene);
+        primaryStage.show();
+		
+		System.out.println("You lose. :(");
 
 	}
 
@@ -455,10 +582,33 @@ public class Minesweeper implements Game {
 			break;
 		}
 	}
-	   catch (Exception e) {
+	 catch (Exception e) {
 			System.out.println("Could not parse " + s + " as an integer");
 			return;
-	    }
+	  }
+  }
+	
+	public Node getNode() {
+		return grid;
 	}
+	
+	public static ImageView createMuteButton(MediaPlayer media) {
+        ImageView imageView = new ImageView(UNMUTE);
+        
+        imageView.setFitWidth(50);
+        imageView.setFitHeight(50);
 
+        imageView.setOnMouseClicked(event -> {
+            if (media.isMute()) {
+                media.setMute(false);
+                imageView.setImage(UNMUTE);
+            } else {
+                media.setMute(true);
+                imageView.setImage(MUTE);
+            }
+        });
+
+        return imageView;
+	}
+	
 }
