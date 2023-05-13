@@ -9,7 +9,6 @@ import java.io.FileOutputStream;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.util.Scanner;
-
 import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.Scene;
@@ -69,6 +68,10 @@ public class Minesweeper implements Game {
 
 	}
 
+	/*
+	 * Menu is created with File and Game Options
+	 * File has options to Save game, Load game or exit game
+	 */
 	public void initializeMenuUI() {
 		MenuBar menuBar = new MenuBar();
 
@@ -98,7 +101,7 @@ public class Minesweeper implements Game {
 
 		loadGameMenuItem.setOnAction(event -> {
 			try {
-				// Let's load our data.
+				// Loading data from dat file
 				ObjectInputStream input = new ObjectInputStream(new FileInputStream("./ms.dat"));
 				this.board = (Board) input.readObject();
 				this.isFirstClick = (Boolean) input.readBoolean();
@@ -115,6 +118,7 @@ public class Minesweeper implements Game {
 		fileMenu.getItems().addAll(saveGameMenuItem, loadGameMenuItem, exitMenuItem);
 
 		// Create items for 'Game' menu
+		//Level options: Easy, Medium and Hard
 		Menu gameMenu = new Menu("Game");
 		RadioMenuItem easyRadioMenuItem = new RadioMenuItem("Easy");
 		RadioMenuItem mediumRadioMenuItem = new RadioMenuItem("Medium");
