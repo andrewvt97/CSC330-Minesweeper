@@ -40,6 +40,7 @@ import javafx.scene.text.Font;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.media.MediaPlayer;
+import javafx.scene.image.Image;
 
 import static application.Constants.MINEONE;
 import static application.Constants.MINETWO;
@@ -69,14 +70,14 @@ public class Minesweeper implements Game {
 	private Stage primaryStage;
 	private Board board;
 	private GridPane grid;
-	private BorderPane borderPane;
+	private BorderPane borderPane = new BorderPane();
 
 	private boolean notBeaten = true;
 	private Timeline timeline;
 	
 	private int seconds = 0;
 	BorderPane bp = new BorderPane();
-	Scene container = new Scene(bp, 800, 650);
+	Scene container = new Scene(this.borderPane, 800, 650);
 	MediaPlayer media = new MediaPlayer(C418);
 
 	public Minesweeper(Stage primaryStage) {
@@ -100,8 +101,6 @@ public class Minesweeper implements Game {
 		MenuItem exitMenuItem = new MenuItem("Exit");
 		MenuItem saveGameMenuItem = new MenuItem("Save Game");
 		MenuItem loadGameMenuItem = new MenuItem("Load Game");
-
-		
 
 		exitMenuItem.setOnAction(event -> {
 			primaryStage.close();
@@ -172,7 +171,6 @@ public class Minesweeper implements Game {
 
 		menuBar.getMenus().addAll(fileMenu, gameMenu);
 
-		this.borderPane = new BorderPane();
 		this.borderPane.setTop(menuBar);
 
 	}
@@ -238,6 +236,8 @@ public class Minesweeper implements Game {
 		centerP.getChildren().add(MSG);
 		
 		bp.setCenter(centerP);
+		
+		this.borderPane.setCenter(bp);
 		
 		primaryStage.setScene(container);
 		
@@ -447,7 +447,7 @@ public class Minesweeper implements Game {
 		}
 
 		VBox root = new VBox(this.borderPane, grid);
-		Scene scene = new Scene(root);
+		scene = new Scene(root);
 		primaryStage.setScene(scene);
 		primaryStage.show();
 	}
