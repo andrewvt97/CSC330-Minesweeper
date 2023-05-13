@@ -60,6 +60,7 @@ public class Minesweeper implements Game {
 	private GridPane grid;
 	private boolean notBeaten = true;
 	private Timeline timeline;
+	private Label timer;
 	
 	private int seconds = 0;
 	BorderPane bp = new BorderPane();
@@ -76,13 +77,19 @@ public class Minesweeper implements Game {
 	public void startGame(String level) {
 		//relocated handling of windows to startGame. 
 		if (level.equals("Easy")){
-				board = new EasyBoard();
+			board = new EasyBoard();
+			timer = new Label("04:00");
+			seconds = 240;
 		}
 		else if (level.equals("Medium")){
 			board = new MediumBoard();
+			timer = new Label("06:00");
+			seconds = 5;
 		}
 		else {
 			board = new HardBoard();
+			timer = new Label("09:00");
+			seconds = 540;
 		}
 		
 		grid = new GridPane();
@@ -94,21 +101,25 @@ public class Minesweeper implements Game {
 		
 		//window handling
 		HBox top = new HBox();
-		Label timer = new Label("00:00");
 		StackPane centerP = new StackPane();
+		
 		
 		timer.setStyle("-fx-font: 24 impact;");
 		timeline = new Timeline(new KeyFrame(Duration.seconds(1), event -> {
-				seconds++;
+				seconds--;
 				int minutes = seconds / 60;
 				int remaining = seconds % 60;
 				timer.setText(String.format("%02d:%02d", minutes, remaining));
+				if (seconds == 0) {
+					youLose();
+				}
 	}));
 		
 		timeline.setCycleCount(Timeline.INDEFINITE);
 		
 		ImageView muteButton = createMuteButton(media);
 		media.setAutoPlay(true);
+		media.setVolume(0.19f);
 		
 		top.setSpacing(50);
 		top.setAlignment(Pos.CENTER);
