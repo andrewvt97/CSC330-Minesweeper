@@ -109,6 +109,7 @@ public class Minesweeper implements Game {
 
 		saveGameMenuItem.setOnAction(event -> {
 			try {
+				this.isLoadedGame = false;
 				ObjectOutputStream output = new ObjectOutputStream(new FileOutputStream("./ms.dat"));
 				output.writeObject(this.board);
 				output.writeBoolean(this.isFirstClick);
@@ -293,9 +294,7 @@ public class Minesweeper implements Game {
 		Tile tile = this.board.getMyTiles()[r1][c1];
 		
 		if (tile.getInfo() == 'r' && tile.isClickedState()) {
-			File file = new File("src/images/Minesweeper-Bomb.png");
-			Image minesweeperBomb = new Image(file.toURI().toString());
-			ImageView bombContainer = new ImageView(minesweeperBomb);
+			ImageView bombContainer = new ImageView(BOMB);
 
 			bombContainer.setFitWidth(tileSize - 10); // Set the width to 40 pixels
 			bombContainer.setFitHeight(tileSize - 10); // Set the height to 40 pixels
@@ -314,9 +313,7 @@ public class Minesweeper implements Game {
 			} else {
 				vbox.setStyle("-fx-background-color: lightgreen;");
 				if (tile.hasFlag()) {
-					File file = new File("src/images/Minesweeper-Flag.png");
-					Image minesweeperFlag = new Image(file.toURI().toString());
-					ImageView flagContainer = new ImageView(minesweeperFlag);
+					ImageView flagContainer = new ImageView(FLAG);
 
 					flagContainer.setFitWidth(tileSize - 10); // Set the width
 					flagContainer.setFitHeight(tileSize - 10); // Set the height
@@ -332,9 +329,9 @@ public class Minesweeper implements Game {
 	 * Creates the grid for the game
 	 */
 	public void createGrid() {
-		Scene scene = new Scene(grid);  
-		primaryStage.setScene(scene);
-        primaryStage.show();
+//		Scene scene = new Scene(grid);  
+//		primaryStage.setScene(scene);
+//        primaryStage.show();
 		
 		for(int row = 0; row < board.getRowSize(); row++) {
 			for(int col = 0; col < board.getColSize(); col++) {
