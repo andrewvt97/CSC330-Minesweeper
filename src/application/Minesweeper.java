@@ -65,12 +65,12 @@ public class Minesweeper implements Game {
 	
 	private int seconds = 0;
 	BorderPane bp = new BorderPane();
-	Scene container = new Scene(bp, 800, 650);
+	Scene container;
 	MediaPlayer media = new MediaPlayer(C418);
 	
 	public Minesweeper(Stage primaryStage) {
 		this.primaryStage = primaryStage;
-		startGame("Medium");
+		startGame("Hard");
 		
 	}
 	
@@ -78,16 +78,19 @@ public class Minesweeper implements Game {
 	public void startGame(String level) {
 		//relocated handling of windows to startGame. 
 		if (level.equals("Easy")){
+			container = new Scene(bp, 650, 525);
 			board = new EasyBoard();
 			timer = new Label("04:00");
 			seconds = 240;
 		}
 		else if (level.equals("Medium")){
+			container = new Scene(bp, 800, 650);
 			board = new MediumBoard();
 			timer = new Label("06:00");
 			seconds = 360;
 		}
 		else {
+			container = new Scene(bp, 900, 730);
 			board = new HardBoard();
 			timer = new Label("09:00");
 			seconds = 540;
