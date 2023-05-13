@@ -30,6 +30,7 @@ import javafx.scene.text.Font;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.media.MediaPlayer;
+import javafx.scene.media.Media;
 
 import static application.Constants.MINEONE;
 import static application.Constants.MINETWO;
@@ -120,6 +121,14 @@ public class Minesweeper implements Game {
 		ImageView muteButton = createMuteButton(media);
 		media.setAutoPlay(true);
 		media.setVolume(0.19f);
+		media.setOnEndOfMedia(new Runnable() {
+			@Override
+			public void run() {
+				media.seek(Duration.ZERO);
+				media.setVolume(0.19f);
+				media.play();
+			}
+		});
 		
 		top.setSpacing(50);
 		top.setAlignment(Pos.CENTER);
@@ -398,6 +407,7 @@ public class Minesweeper implements Game {
         primaryStage.show();
         
 		System.out.println("Congrats! You beat Minesweeper!");
+		notBeaten = false;
 
 	}
 
@@ -425,6 +435,7 @@ public class Minesweeper implements Game {
         primaryStage.show();
 		
 		System.out.println("You lose. :(");
+		notBeaten = false;
 
 	}
 	
