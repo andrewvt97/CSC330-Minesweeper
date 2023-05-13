@@ -84,7 +84,7 @@ public class Minesweeper implements Game {
 		else if (level.equals("Medium")){
 			board = new MediumBoard();
 			timer = new Label("06:00");
-			seconds = 5;
+			seconds = 360;
 		}
 		else {
 			board = new HardBoard();
