@@ -1,6 +1,3 @@
-/**
- * 
- */
 package application;
 
 import java.io.File;
@@ -8,7 +5,6 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
-import java.util.Scanner;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.Scene;
@@ -23,14 +19,11 @@ import javafx.scene.layout.CornerRadii;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
-import javafx.scene.text.Text;
 import javafx.stage.Stage;
 import javafx.scene.control.MenuBar;
 import javafx.scene.control.Menu;
 import javafx.scene.control.MenuItem;
-import javafx.scene.control.CheckMenuItem;
 import javafx.scene.control.RadioMenuItem;
-import javafx.scene.control.SeparatorMenuItem;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.control.ToggleGroup;
 import static application.Constants.MINEONE;
@@ -51,6 +44,7 @@ public class Minesweeper implements Game {
 	private int safeTilesClicked;
 	private int flagCounter;
 	private boolean isFirstClick;
+	private boolean isLoadedGame;
 	private String level;
 	private Stage primaryStage;
 	private Board board;
@@ -68,7 +62,7 @@ public class Minesweeper implements Game {
 
 	}
 
-	/*
+	/**
 	 * Menu is created with File and Game Options
 	 * File has options to Save game, Load game or exit game
 	 */
@@ -80,6 +74,7 @@ public class Minesweeper implements Game {
 		MenuItem exitMenuItem = new MenuItem("Exit");
 		MenuItem saveGameMenuItem = new MenuItem("Save Game");
 		MenuItem loadGameMenuItem = new MenuItem("Load Game");
+		
 
 		exitMenuItem.setOnAction(event -> {
 			primaryStage.close();
@@ -101,7 +96,8 @@ public class Minesweeper implements Game {
 
 		loadGameMenuItem.setOnAction(event -> {
 			try {
-				// Loading data from dat file
+				this.isLoadedGame = true;
+				// Loading data from file
 				ObjectInputStream input = new ObjectInputStream(new FileInputStream("./ms.dat"));
 				this.board = (Board) input.readObject();
 				this.isFirstClick = (Boolean) input.readBoolean();
@@ -110,7 +106,7 @@ public class Minesweeper implements Game {
 				input.close();
 				startGame(this.board);
 			} catch (Exception e) {
-				System.out.println("Error!!!!");
+				System.out.println("Error reading board from file.");
 				e.printStackTrace();
 			}
 		});
@@ -153,18 +149,22 @@ public class Minesweeper implements Game {
 		this.borderPane.setTop(menuBar);
 
 	}
-
+	
 	@Override
-	public void startGame(Board board/* String level */) {
-		/*
-		 * if (level.equals("Easy")){ board = new EasyBoard(); } else if
-		 * (level.equals("Medium")){ board = new MediumBoard(); } else { board = new
-		 * HardBoard(); }
-		 */
-
-		this.isFirstClick = true;
-		this.grid = new GridPane();
-		createGrid();
+	/**
+	 * Checks to see if game is previously loaded before setting isFirstClick to true
+	 * @param board
+	 */
+	public void startGame(Board board) {		
+		if(this.isFirstClick == false && this.isLoadedGame == true) {
+			this.grid = new GridPane();
+			createGrid();
+		}
+		else {
+			this.isFirstClick = true;
+			this.grid = new GridPane();
+			createGrid();
+		}
 	}
 
 	/**
@@ -202,14 +202,13 @@ public class Minesweeper implements Game {
 		return level;
 	}
 
+	
 	/**
-	 * @param level the level to set
+	 * Saves state for each cell
+	 * @param vbox
+	 * @param r1
+	 * @param c1
 	 */
-	// public void setLevel(String level) {
-	// this.level = level;
-	// startGame(level);
-	// }
-
 	private void setGridCellState(VBox vbox, int r1, int c1) {
 		int tileSize = this.board.getTileSize();
 
@@ -251,6 +250,9 @@ public class Minesweeper implements Game {
 		}
 	}
 
+	/**
+	 * Creates the grid for the game
+	 */
 	public void createGrid() {
 		for (int row = 0; row < board.getRowSize(); row++) {
 			for (int col = 0; col < board.getColSize(); col++) {
@@ -273,8 +275,6 @@ public class Minesweeper implements Game {
 					Node n = (Node) e.getSource();
 					Integer r1 = GridPane.getRowIndex(n);
 					Integer c1 = GridPane.getColumnIndex(n);
-
-					// VBox vbox1 = (VBox)n; // not needed
 
 					if (e.getButton() == MouseButton.PRIMARY) {
 
@@ -319,7 +319,6 @@ public class Minesweeper implements Game {
 							}
 						}
 
-						// System.out.println(safeTilesClicked);
 						if (safeTilesClicked == board.getSafeTiles()) {
 							youWin();
 						}
@@ -371,7 +370,6 @@ public class Minesweeper implements Game {
 	public void findEmptyBlocks(int row, int col) { // uses recursion
 		Node node;
 		VBox vbox = new VBox();
-		// Text text;
 		String text;
 
 		for (int i = row - 1; i < row + 2; i++) {
@@ -407,7 +405,6 @@ public class Minesweeper implements Game {
 						vbox.setAlignment(Pos.CENTER);
 						text = new String(Character.toString(board.getMyTiles()[i][j].getInfo()));
 						setMineNum(text, vbox);
-						// vbox.getChildren().add(text);
 					}
 				}
 

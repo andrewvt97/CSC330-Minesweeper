@@ -10,7 +10,7 @@ import java.util.HashMap;
  * @author andre
  *
  */
-public abstract class Board implements java.io.Serializable {
+public abstract class Board implements Serializable {
 	
 	private int rowSize;
     private int colSize;
