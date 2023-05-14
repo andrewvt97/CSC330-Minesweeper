@@ -1,7 +1,11 @@
-/**
- * 
- */
 package application;
+
+
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
@@ -23,6 +27,12 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.stage.Stage;
+import javafx.scene.control.MenuBar;
+import javafx.scene.control.Menu;
+import javafx.scene.control.MenuItem;
+import javafx.scene.control.RadioMenuItem;
+import javafx.scene.layout.BorderPane;
+import javafx.scene.control.ToggleGroup;
 import javafx.util.Duration;
 import javafx.scene.layout.StackPane;
 import javafx.scene.text.Text;
@@ -31,6 +41,7 @@ import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.media.MediaPlayer;
 import javafx.scene.media.Media;
+import javafx.scene.image.Image;
 
 import static application.Constants.MINEONE;
 import static application.Constants.MINETWO;
@@ -51,63 +62,146 @@ import static application.Constants.C418;
  *
  */
 public class Minesweeper implements Game {
-	
+
 	private int safeTilesClicked;
 	private int flagCounter;
 	private boolean isFirstClick;
+	private boolean isLoadedGame;
 	private String level;
 	private Stage primaryStage;
 	private Board board;
 	private GridPane grid;
+	private BorderPane borderPane = new BorderPane();
+
 	private boolean notBeaten = true;
 	private Timeline timeline;
-	private Label timer;
 	
 	private int seconds = 0;
 	BorderPane bp = new BorderPane();
 	Scene container;
 	MediaPlayer media = new MediaPlayer(C418);
-	
+
 	public Minesweeper(Stage primaryStage) {
+		this.board = new EasyBoard();
 		this.primaryStage = primaryStage;
-		startGame("Hard");
-		
+		this.flagCounter = this.board.getMines();
+		this.initializeMenuUI();
+
+		startGame(board);
+	}
+
+	/**
+	 * Menu is created with File and Game Options
+	 * File has options to Save game, Load game or exit game
+	 */
+	public void initializeMenuUI() {
+		MenuBar menuBar = new MenuBar();
+
+		// Create items for 'File' menu
+		Menu fileMenu = new Menu("File");
+		MenuItem exitMenuItem = new MenuItem("Exit");
+		MenuItem saveGameMenuItem = new MenuItem("Save Game");
+		MenuItem loadGameMenuItem = new MenuItem("Load Game");
+
+		exitMenuItem.setOnAction(event -> {
+			primaryStage.close();
+		});
+
+		saveGameMenuItem.setOnAction(event -> {
+			try {
+				ObjectOutputStream output = new ObjectOutputStream(new FileOutputStream("./ms.dat"));
+				output.writeObject(this.board);
+				output.writeBoolean(this.isFirstClick);
+				output.writeInt(this.safeTilesClicked);
+				output.writeInt(this.flagCounter);
+				output.close();
+			} catch (Exception e) {
+				System.out.println("Error writing board to file.");
+				e.printStackTrace();
+			}
+		});
+
+		loadGameMenuItem.setOnAction(event -> {
+			try {
+				this.isLoadedGame = true;
+				// Loading data from file
+				ObjectInputStream input = new ObjectInputStream(new FileInputStream("./ms.dat"));
+				this.board = (Board) input.readObject();
+				this.isFirstClick = (Boolean) input.readBoolean();
+				this.safeTilesClicked = (Integer) input.readInt();
+				this.flagCounter = (Integer) input.readInt();
+				input.close();
+				startGame(this.board);
+			} catch (Exception e) {
+				System.out.println("Error reading board from file.");
+				e.printStackTrace();
+			}
+		});
+
+		fileMenu.getItems().addAll(saveGameMenuItem, loadGameMenuItem, exitMenuItem);
+
+		// Create items for 'Game' menu
+		//Level options: Easy, Medium and Hard
+		Menu gameMenu = new Menu("Game");
+		RadioMenuItem easyRadioMenuItem = new RadioMenuItem("Easy");
+		RadioMenuItem mediumRadioMenuItem = new RadioMenuItem("Medium");
+		RadioMenuItem hardRadioMenuItem = new RadioMenuItem("Hard");
+
+		easyRadioMenuItem.setOnAction(event -> {
+			this.board = new EasyBoard();
+			startGame(this.board);
+		});
+
+		mediumRadioMenuItem.setOnAction(event -> {
+			this.board = new MediumBoard();
+			startGame(this.board);
+		});
+
+		hardRadioMenuItem.setOnAction(event -> {
+			this.board = new HardBoard();
+			startGame(this.board);
+		});
+
+		ToggleGroup gameModeToggleGroup = new ToggleGroup();
+
+		easyRadioMenuItem.setToggleGroup(gameModeToggleGroup);
+		mediumRadioMenuItem.setToggleGroup(gameModeToggleGroup);
+		hardRadioMenuItem.setToggleGroup(gameModeToggleGroup);
+
+		gameMenu.getItems().addAll(easyRadioMenuItem, mediumRadioMenuItem, hardRadioMenuItem);
+
+		menuBar.getMenus().addAll(fileMenu, gameMenu);
+
+		this.borderPane.setTop(menuBar);
+
 	}
 	
 	@Override
-	public void startGame(String level) {
-		this.level = level;
-		//relocated handling of windows to startGame. 
-		if (level.equals("Easy")){
-			container = new Scene(bp, 650, 525);
-			board = new EasyBoard();
-			timer = new Label("04:00");
-			seconds = 240;
-		}
-		else if (level.equals("Medium")){
-			container = new Scene(bp, 800, 650);
-			board = new MediumBoard();
-			timer = new Label("06:00");
-			seconds = 360;
+	/**
+	 * Checks to see if game is previously loaded before setting isFirstClick to true
+	 * @param board
+	 */
+	public void startGame(Board board) {	
+		this.board = board;
+	
+		if(this.isFirstClick == false && this.isLoadedGame == true) {
+			this.grid = new GridPane();
+			createGrid();
+
 		}
 		else {
-			container = new Scene(bp, 900, 730);
-			board = new HardBoard();
-			timer = new Label("09:00");
-			seconds = 540;
+			this.isFirstClick = true;
+			this.grid = new GridPane();
+			createGrid();
 		}
 		
-		grid = new GridPane();
-		isFirstClick = true;
+// 		isFirstClick = true;
 		safeTilesClicked = 0;
 		flagCounter = board.getMines();
 		
-		createGrid();
-		
 		//window handling
 		HBox top = new HBox();
-		StackPane centerP = new StackPane();
-		
+		Label timer = new Label("00:00");
 		
 		timer.setStyle("-fx-font: 24 impact;");
 		timeline = new Timeline(new KeyFrame(Duration.seconds(1), event -> {
@@ -139,27 +233,31 @@ public class Minesweeper implements Game {
 		top.setPadding(new Insets(10, 10, 10, 10));
 		top.getChildren().addAll(muteButton, timer);
 		
-		bp.setTop(top);
+		//bp.setTop(top);
 		//bp.getChildren().addAll(time);
 		
-		centerP.setPadding(new Insets(10, 10, 10, 10));
-		centerP.setAlignment(Pos.CENTER);
+		StackPane centerGame = new StackPane();
+		centerGame.setPadding(new Insets(10, 10, 10, 10));
+		centerGame.setAlignment(Pos.CENTER);
 		
 		Node gameNode = grid;
 		Group MSG = new Group();
 		MSG.getChildren().add(gameNode);
+		centerGame.getChildren().addAll(MSG);
 
 		top.setStyle("-fx-background-color: azure;");
-		centerP.setStyle("-fx-background-color: azure;");
+		centerGame.setStyle("-fx-background-color: azure;");
+		gameNode.setStyle("-fx-background-color: azure;");
+		bp.setStyle("-fx-background-color: azure;");
 		
-		centerP.getChildren().add(MSG);
+		bp.setTop(borderPane);
+		bp.setCenter(centerGame);
 		
-		bp.setCenter(centerP);
+		borderPane.setCenter(top);
 		
 		primaryStage.setScene(container);
 		
 		timeline.play();
-		
 	}
 
 	/**
@@ -189,8 +287,6 @@ public class Minesweeper implements Game {
 	public void setFlagCounter(int flagCounter) {
 		this.flagCounter = flagCounter;
 	}
-	
-	
 
 	/**
 	 * @return the level
@@ -199,14 +295,57 @@ public class Minesweeper implements Game {
 		return level;
 	}
 
+	
 	/**
-	 * @param level the level to set
+	 * Saves state for each cell
+	 * @param vbox
+	 * @param r1
+	 * @param c1
 	 */
-	public void setLevel(String level) {
-		this.level = level;
-		startGame(level);
+	private void setGridCellState(VBox vbox, int r1, int c1) {
+		int tileSize = this.board.getTileSize();
+
+		Tile tile = this.board.getMyTiles()[r1][c1];
+		
+		if (tile.getInfo() == 'r' && tile.isClickedState()) {
+			//File file = new File("src/images/Minesweeper-Bomb.png");
+			//Image minesweeperBomb = new Image(file.toURI().toString());
+			ImageView bombContainer = new ImageView(BOMB);
+
+			bombContainer.setFitWidth(tileSize - 10); // Set the width to 40 pixels
+			bombContainer.setFitHeight(tileSize - 10); // Set the height to 40 pixels
+			vbox.setAlignment(Pos.CENTER);
+			vbox.getChildren().add(bombContainer);
+
+			this.youLose();
+
+		} else {
+			if (tile.isClickedState()) {
+				vbox.setStyle("-fx-background-color: beige;");
+		
+				String numberAsText = Character.toString(tile.getInfo());
+				vbox.setAlignment(Pos.CENTER);
+				setMineNum(numberAsText, vbox);
+			} else {
+				vbox.setStyle("-fx-background-color: lightgreen;");
+				if (tile.hasFlag()) {
+					File file = new File("src/images/Minesweeper-Flag.png");
+					Image minesweeperFlag = new Image(file.toURI().toString());
+					ImageView flagContainer = new ImageView(minesweeperFlag);
+
+					flagContainer.setFitWidth(tileSize - 10); // Set the width
+					flagContainer.setFitHeight(tileSize - 10); // Set the height
+					
+					vbox.setAlignment(Pos.CENTER);
+					vbox.getChildren().add(flagContainer);
+				}
+			}
+		}
 	}
 
+	/**
+	 * Creates the grid for the game
+	 */
 	public void createGrid() {
 		Scene scene = new Scene(grid);  
 		primaryStage.setScene(scene);
@@ -216,47 +355,42 @@ public class Minesweeper implements Game {
 			for(int col = 0; col < board.getColSize(); col++) {
 			
 				VBox vbox = new VBox();
+
 				int tileSize = board.getTileSize();
 				vbox.setPrefSize(tileSize, tileSize);
-				 
+
 				vbox.setStyle("-fx-background-color: lightgreen;");
-				
-				
+
 				// Set the border style
-				vbox.setBorder(new Border(new BorderStroke(Color.BLACK, BorderStrokeStyle.SOLID, CornerRadii.EMPTY, new BorderWidths(2))));
+				vbox.setBorder(new Border(new BorderStroke(Color.BLACK, BorderStrokeStyle.SOLID, CornerRadii.EMPTY,
+						new BorderWidths(2))));
 
-				
+				this.setGridCellState(vbox, row, col);
+
 				vbox.setOnMouseClicked(e -> {
-					
-					Node n = (Node)e.getSource();     
-					Integer r1 = GridPane.getRowIndex(n);     
-					Integer c1 = GridPane.getColumnIndex(n); 
 
-//						VBox vbox1 = (VBox)n; // not needed
+					Node n = (Node) e.getSource();
+					Integer r1 = GridPane.getRowIndex(n);
+					Integer c1 = GridPane.getColumnIndex(n);
 					
-					if (notBeaten) {
-					
+			if (notBeaten) {
 					if (e.getButton() == MouseButton.PRIMARY) {
-						
-						
-						if ((boolean)vbox.getProperties().containsKey("hasFlag")) {
+
+						if ((boolean) vbox.getProperties().containsKey("hasFlag")) {
 							return;
 						}
-						
+
 						if (!isFirstClick && board.getMyTiles()[r1][c1].isClickedState() == true) {
 							return;
 						}
-						
+
 						if (isFirstClick == true) {
 							isFirstClick = false;
 							board.createBoardDetails(r1, c1);
 						}
-					
+
 						board.getMyTiles()[r1][c1].setClickedState(true);
 						if (board.getMyTiles()[r1][c1].getInfo() == 'r') {
-							
-							//File file = new File("src/images/Minesweeper-Bomb.png");
-							//Image minesweeperBomb = new Image(file.toURI().toString());
 							ImageView bombContainer = new ImageView(BOMB);
 							
 							bombContainer.setFitWidth(tileSize - 10); // Set the width to 40 pixels
@@ -267,27 +401,24 @@ public class Minesweeper implements Game {
 						    
 						    youLose();
 						    
-//						    setLevel("Hard"); testing set level function
 						}
 						else {
 							safeTilesClicked += 1; // safe tiles clicked
 							vbox.setStyle("-fx-background-color: beige;");
 							if (board.getMyTiles()[r1][c1].getInfo() == '0') {
-								findEmptyBlocks(r1,c1);
-							}
-							else {
-								
+								findEmptyBlocks(r1, c1);
+							} else {
+
 								String text = new String(Character.toString(board.getMyTiles()[r1][c1].getInfo()));
-							    vbox.setAlignment(Pos.CENTER);
-							    setMineNum(text, vbox);
+								vbox.setAlignment(Pos.CENTER);
+								setMineNum(text, vbox);
 							}
 						}
-						
-						
-//							System.out.println(safeTilesClicked);
+
 						if (safeTilesClicked == board.getSafeTiles()) {
 							youWin();
 						}
+
 					}
 					else if (e.getButton() == MouseButton.SECONDARY) {
 						//youWin(primaryStage, container); //debugging                                            josh note :)
@@ -301,24 +432,21 @@ public class Minesweeper implements Game {
 						else {
 							
 							if (board.getMyTiles()[r1][c1].isClickedState() == false) {
-							
-								//File file = new File("src/images/Minesweeper-Flag.png");
-								//Image minesweeperFlag = new Image(file.toURI().toString());
 								ImageView flagContainer = new ImageView(FLAG);
 								
 								flagContainer.setFitWidth(tileSize - 10); // Set the width
 								flagContainer.setFitHeight(tileSize - 10); // Set the height
-								
+
 								vbox.getProperties().put("hasFlag", true);
-								
+								this.board.getMyTiles()[r1][c1].setFlag(true);
+
 								vbox.setAlignment(Pos.CENTER);
-							    vbox.getChildren().add(flagContainer);
-							    flagCounter -= 1;
-						    
+								vbox.getChildren().add(flagContainer);
+								flagCounter -= 1;
+
 							}
-						    
+
 						}
-						
 
 					}
 					e.consume();
@@ -328,27 +456,28 @@ public class Minesweeper implements Game {
 						
 					}
 				});
-			
-				
+
 				grid.add(vbox, col, row);
 			}
 		}
-		
-		
+
+		VBox root = new VBox(this.borderPane, grid);
+		scene = new Scene(root);
+		primaryStage.setScene(scene);
+		primaryStage.show();
 	}
-	
+
 	public void findEmptyBlocks(int row, int col) { // uses recursion
 		Node node;
 		VBox vbox = new VBox();
-		//Text text;
 		String text;
-		
-		for (int i = row -1; i < row + 2; i++) {
+
+		for (int i = row - 1; i < row + 2; i++) {
 			if (i < 0 || i >= board.getRowSize()) {
 				continue;
 			}
 			for (int j = col - 1; j < col + 2; j++) {
-				if (j < 0 || j >= board.getColSize() || (i  == row && j == col) ) {
+				if (j < 0 || j >= board.getColSize() || (i == row && j == col)) {
 					continue;
 				}
 				if (board.getMyTiles()[i][j].isClickedState() == true) {
@@ -357,7 +486,7 @@ public class Minesweeper implements Game {
 				node = grid.getChildren().get(i * board.getColSize() + j);
 				vbox = (VBox) node;
 				if (board.getMyTiles()[i][j].getInfo() != 'r') {
-					if ((boolean)vbox.getProperties().containsKey("hasFlag")) {
+					if ((boolean) vbox.getProperties().containsKey("hasFlag")) {
 						vbox.getProperties().remove("hasFlag");
 						vbox.getChildren().clear();
 						flagCounter += 1;
@@ -366,27 +495,24 @@ public class Minesweeper implements Game {
 					safeTilesClicked += 1;
 					vbox.setStyle("-fx-background-color: beige;"); // change to css file later
 					if (board.getMyTiles()[i][j].getInfo() == '0') {
-						
+
 						board.getMyTiles()[i][j].setClickedState(true);
 						findEmptyBlocks(i, j);
-					}
-					else  { // must be another number then
-						
+					} else { // must be another number then
+
 						board.getMyTiles()[i][j].setClickedState(true);
-						//images here!			
+						// images here!
 						vbox.setAlignment(Pos.CENTER);
 						text = new String(Character.toString(board.getMyTiles()[i][j].getInfo()));
 						setMineNum(text, vbox);
-						//vbox.getChildren().add(text);
 					}
 				}
-				
+
 			}
 		}
-		
+
 	}
-	
-	
+
 	@Override
 	public void youWin() {
 		StackPane winPane = new StackPane();
@@ -451,8 +577,9 @@ public class Minesweeper implements Game {
 		notBeaten = false;
 
 	}
-	
+
 	public void setMineNum(String s, VBox v) {
+	    try {
 		int leNumber = Integer.parseInt(s);
 		switch (leNumber) {
 		case 1:
@@ -481,7 +608,11 @@ public class Minesweeper implements Game {
 			break;
 		}
 	}
-	
+	 catch (Exception e) {
+			System.out.println("Could not parse " + s + " as an integer");
+			return;
+	  }
+  }
 	
 	public Node getNode() {
 		return grid;
@@ -507,4 +638,3 @@ public class Minesweeper implements Game {
 	}
 	
 }
-
