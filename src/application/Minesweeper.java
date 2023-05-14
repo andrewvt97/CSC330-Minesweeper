@@ -40,6 +40,7 @@ import javafx.scene.text.Font;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.media.MediaPlayer;
+import javafx.scene.media.Media;
 import javafx.scene.image.Image;
 
 import static application.Constants.MINEONE;
@@ -77,7 +78,7 @@ public class Minesweeper implements Game {
 	
 	private int seconds = 0;
 	BorderPane bp = new BorderPane();
-	Scene container = new Scene(bp, 800, 650);
+	Scene container;
 	MediaPlayer media = new MediaPlayer(C418);
 
 	public Minesweeper(Stage primaryStage) {
@@ -217,6 +218,15 @@ public class Minesweeper implements Game {
 		
 		ImageView muteButton = createMuteButton(media);
 		media.setAutoPlay(true);
+		media.setVolume(0.19f);
+		media.setOnEndOfMedia(new Runnable() {
+			@Override
+			public void run() {
+				media.seek(Duration.ZERO);
+				media.setVolume(0.19f);
+				media.play();
+			}
+		});
 		
 		top.setSpacing(50);
 		top.setAlignment(Pos.CENTER);
@@ -527,13 +537,23 @@ public class Minesweeper implements Game {
         primaryStage.show();
         
 		System.out.println("Congrats! You beat Minesweeper!");
+		notBeaten = false;
 
 	}
 
 	@Override
 	public void youLose() {
 		StackPane winPane = new StackPane();
-		Scene winScene = new Scene(winPane, 800, 650);
+		Scene winScene;
+		if (level.equals("Easy")){
+			winScene = new Scene(winPane, 650, 525);
+		}
+		else if (level.equals("Medium")){
+			winScene = new Scene(winPane, 800, 650);
+		}
+		else {
+			winScene = new Scene(winPane, 900, 730);
+		}
 		Button closeButton = new Button("Close");
         closeButton.setOnAction(event -> {
         	primaryStage.setScene(container);
@@ -554,6 +574,7 @@ public class Minesweeper implements Game {
         primaryStage.show();
 		
 		System.out.println("You lose. :(");
+		notBeaten = false;
 
 	}
 
