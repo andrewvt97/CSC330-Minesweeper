@@ -108,6 +108,7 @@ public class Minesweeper implements Game {
 
 		saveGameMenuItem.setOnAction(event -> {
 			try {
+				this.isLoadedGame = false;
 				ObjectOutputStream output = new ObjectOutputStream(new FileOutputStream("./ms.dat"));
 				output.writeObject(this.board);
 				output.writeBoolean(this.isFirstClick);
@@ -319,9 +320,7 @@ public class Minesweeper implements Game {
 			} else {
 				vbox.setStyle("-fx-background-color: lightgreen;");
 				if (tile.hasFlag()) {
-					File file = new File("src/images/Minesweeper-Flag.png");
-					Image minesweeperFlag = new Image(file.toURI().toString());
-					ImageView flagContainer = new ImageView(minesweeperFlag);
+					ImageView flagContainer = new ImageView(FLAG);
 
 					flagContainer.setFitWidth(tileSize - 10); // Set the width
 					flagContainer.setFitHeight(tileSize - 10); // Set the height
