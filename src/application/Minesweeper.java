@@ -77,7 +77,7 @@ public class Minesweeper implements Game {
 	
 	private int seconds = 0;
 	BorderPane bp = new BorderPane();
-	Scene container = new Scene(this.borderPane, 800, 650);
+	Scene container = new Scene(bp, 800, 650);
 	MediaPlayer media = new MediaPlayer(C418);
 
 	public Minesweeper(Stage primaryStage) {
@@ -86,7 +86,7 @@ public class Minesweeper implements Game {
 		this.flagCounter = this.board.getMines();
 		this.initializeMenuUI();
 
-		startGame(this.board);
+		startGame(board);
 	}
 
 	/**
@@ -180,7 +180,9 @@ public class Minesweeper implements Game {
 	 * Checks to see if game is previously loaded before setting isFirstClick to true
 	 * @param board
 	 */
-	public void startGame(Board board) {		
+	public void startGame(Board board) {	
+		this.board = board;
+	
 		if(this.isFirstClick == false && this.isLoadedGame == true) {
 			this.grid = new GridPane();
 			createGrid();
@@ -196,18 +198,19 @@ public class Minesweeper implements Game {
 		safeTilesClicked = 0;
 		flagCounter = board.getMines();
 		
-		
 		//window handling
 		HBox top = new HBox();
 		Label timer = new Label("00:00");
-		StackPane centerP = new StackPane();
 		
 		timer.setStyle("-fx-font: 24 impact;");
 		timeline = new Timeline(new KeyFrame(Duration.seconds(1), event -> {
-				seconds++;
+				seconds--;
 				int minutes = seconds / 60;
 				int remaining = seconds % 60;
 				timer.setText(String.format("%02d:%02d", minutes, remaining));
+				if (seconds == 0) {
+					youLose();
+				}
 	}));
 		
 		timeline.setCycleCount(Timeline.INDEFINITE);
@@ -220,29 +223,31 @@ public class Minesweeper implements Game {
 		top.setPadding(new Insets(10, 10, 10, 10));
 		top.getChildren().addAll(muteButton, timer);
 		
-		bp.setTop(top);
+		//bp.setTop(top);
 		//bp.getChildren().addAll(time);
 		
-		centerP.setPadding(new Insets(10, 10, 10, 10));
-		centerP.setAlignment(Pos.CENTER);
+		StackPane centerGame = new StackPane();
+		centerGame.setPadding(new Insets(10, 10, 10, 10));
+		centerGame.setAlignment(Pos.CENTER);
 		
 		Node gameNode = grid;
 		Group MSG = new Group();
 		MSG.getChildren().add(gameNode);
+		centerGame.getChildren().addAll(MSG);
 
 		top.setStyle("-fx-background-color: azure;");
-		centerP.setStyle("-fx-background-color: azure;");
+		centerGame.setStyle("-fx-background-color: azure;");
+		gameNode.setStyle("-fx-background-color: azure;");
+		bp.setStyle("-fx-background-color: azure;");
 		
-		centerP.getChildren().add(MSG);
+		bp.setTop(borderPane);
+		bp.setCenter(centerGame);
 		
-		bp.setCenter(centerP);
-		
-		this.borderPane.setCenter(bp);
+		borderPane.setCenter(top);
 		
 		primaryStage.setScene(container);
 		
 		timeline.play();
-	
 	}
 
 	/**
@@ -293,9 +298,9 @@ public class Minesweeper implements Game {
 		Tile tile = this.board.getMyTiles()[r1][c1];
 		
 		if (tile.getInfo() == 'r' && tile.isClickedState()) {
-			File file = new File("src/images/Minesweeper-Bomb.png");
-			Image minesweeperBomb = new Image(file.toURI().toString());
-			ImageView bombContainer = new ImageView(minesweeperBomb);
+			//File file = new File("src/images/Minesweeper-Bomb.png");
+			//Image minesweeperBomb = new Image(file.toURI().toString());
+			ImageView bombContainer = new ImageView(BOMB);
 
 			bombContainer.setFitWidth(tileSize - 10); // Set the width to 40 pixels
 			bombContainer.setFitHeight(tileSize - 10); // Set the height to 40 pixels
