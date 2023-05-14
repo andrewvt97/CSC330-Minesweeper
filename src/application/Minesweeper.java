@@ -76,6 +76,7 @@ public class Minesweeper implements Game {
 	
 	@Override
 	public void startGame(String level) {
+		this.level = level;
 		//relocated handling of windows to startGame. 
 		if (level.equals("Easy")){
 			container = new Scene(bp, 650, 525);
@@ -417,7 +418,16 @@ public class Minesweeper implements Game {
 	@Override
 	public void youLose() {
 		StackPane winPane = new StackPane();
-		Scene winScene = new Scene(winPane, 800, 650);
+		Scene winScene;
+		if (level.equals("Easy")){
+			winScene = new Scene(winPane, 650, 525);
+		}
+		else if (level.equals("Medium")){
+			winScene = new Scene(winPane, 800, 650);
+		}
+		else {
+			winScene = new Scene(winPane, 900, 730);
+		}
 		Button closeButton = new Button("Close");
         closeButton.setOnAction(event -> {
         	primaryStage.setScene(container);
