@@ -471,7 +471,7 @@ public class Minesweeper implements Game {
 							flagCount.setText(Integer.toString(flagCounter));
 						}
 						else {
-							if (board.getMyTiles()[r1][c1].isClickedState() == false && flagCounter > 0) {
+							if (board.getMyTiles()[r1][c1].isClickedState() == false) {
 								ImageView flagContainer = new ImageView(FLAG);
 								
 								flagContainer.setFitWidth(tileSize - 10); // Set the width
