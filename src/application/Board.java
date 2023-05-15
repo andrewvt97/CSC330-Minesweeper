@@ -3,14 +3,13 @@
  */
 package application;
 
-import java.io.Serializable;
 import java.util.HashMap;
 
 /**
  * @author andre
  *
  */
-public abstract class Board implements Serializable {
+public abstract class Board {
 	
 	private int rowSize;
     private int colSize;

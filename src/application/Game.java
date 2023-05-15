@@ -9,8 +9,7 @@ package application;
  */
 public interface Game {
 	
-	public void startGame(Board board);
-	//public void startGame(String level);
+	public void startGame(String level);
 	
 	public void youWhat(String decision);
 }
