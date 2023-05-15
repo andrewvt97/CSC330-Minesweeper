@@ -22,7 +22,6 @@ public final class Constants {
 	public static final Image MINESEVEN = findNload("7.png");
 	public static final Image MINEEIGHT = findNload("8.png");
 	public static final Image BOMB = findNload("bomb.png");
-	public static final Image DBOMB = findNload("dbomb.png");
 	public static final Image FLAG = findNload("flag.png");
 	public static final Image MUTE = findNload("mute.png");
 	public static final Image UNMUTE = findNload("unmute.png");
