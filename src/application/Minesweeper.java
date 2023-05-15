@@ -235,7 +235,11 @@ public class Minesweeper implements Game {
 		//Holds the flag image and flag counter.
 		HBox flagContainer = new HBox();
 		flagCount = new Label("" + flagCounter);
-		flagCount.setStyle("-fx-font: 18 impact;");
+		if (flagCounter < 0) {
+			flagCount.setStyle("-fx-font: 18 impact; -fx-text-fill: red;");
+		} else {
+			flagCount.setStyle("-fx-font: 18 impact;");
+		}
 		ImageView flagImage = new ImageView(FLAG);
 		flagImage.setFitHeight(50);
 		flagImage.setFitWidth(50);
