@@ -11,5 +11,6 @@ public interface Game {
 	
 	public void startGame(String level);
 	
-	public void youWhat(String decision);
+	public void youWin();
+	public void youLose();
 }
