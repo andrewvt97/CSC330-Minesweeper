@@ -69,8 +69,10 @@ public class Minesweeper implements Game {
 	private BorderPane borderPane = new BorderPane();
 
 	private boolean notBeaten = true;
+	private boolean shown = false;
 	private Timeline timeline;
 	private Label timer;
+	private Label flagCount;
 	
 	private int seconds = 0;
 	BorderPane bp;
@@ -132,6 +134,12 @@ public class Minesweeper implements Game {
 				this.seconds = (Integer) input.readInt();
 				input.close();
 				startGame(this.board);
+				if (notBeaten == false) {
+					timeline.stop();
+					int minutes = seconds / 60;
+					int remaining = seconds % 60;
+					timer.setText(String.format("%02d:%02d", minutes, remaining));
+				}
 			} catch (Exception e) {
 				System.out.println("Error reading board from file.");
 				e.printStackTrace();
@@ -192,6 +200,7 @@ public class Minesweeper implements Game {
 	 */
 	public void startGame(Board board) {	
 		this.board = board;
+		//Main BorderPane Window.
 		bp = new BorderPane();
 	
 		if(this.isFirstClick == false && this.isLoadedGame == true) {
@@ -208,51 +217,65 @@ public class Minesweeper implements Game {
 		safeTilesClicked = 0;
 		flagCounter = board.getMines();
 		
-		//window handling
-		HBox top = new HBox();
-		
-		
+		//Handles restarts of audio.
 		if(media != null) {
 			media.pause();
 			media.seek(Duration.ZERO);
 			media.play();
-		}else {
+		} else {
 			media = new MediaPlayer(C418);
 		}
 		
-		setTimer();
+		//Holds the flag image and flag counter.
+		HBox flagContainer = new HBox();
+		flagCount = new Label("" + flagCounter);
+		flagCount.setStyle("-fx-font: 18 impact;");
+		ImageView flagImage = new ImageView(FLAG);
+		flagImage.setFitHeight(50);
+		flagImage.setFitWidth(50);
 		
+		flagContainer.getChildren().addAll(flagImage, flagCount);
+		
+		//Creates the mute button. Function is responsible for event calls.
 		ImageView muteButton = createMuteButton(media);
 		media.setAutoPlay(true);
 		
-		
+		//Creates the top portion of the screen. (The top of the BorderPane.)
+		HBox top = new HBox();
 		top.setSpacing(50);
 		top.setAlignment(Pos.CENTER);
 		top.setPadding(new Insets(10, 10, 10, 10));
-		top.getChildren().addAll(muteButton, timer);
 		
-		//bp.setTop(top);
-		//bp.getChildren().addAll(time);
+		//...
+		setTimer();
+				
+		top.getChildren().addAll(muteButton, flagContainer, timer);
 		
+		//Creates a container for the Minesweeper game.
 		StackPane centerGame = new StackPane();
-		centerGame.setPadding(new Insets(10, 10, 10, 10));
+		centerGame.setPadding(new Insets(0, 10, 10, 10));
 		centerGame.setAlignment(Pos.CENTER);
 		
 		Node gameNode = grid;
+		//JavaFX did not want to center the StackPane, so I created a group.
 		Group MSG = new Group();
 		MSG.getChildren().add(gameNode);
 		centerGame.getChildren().addAll(MSG);
 
+		//Sets the background to azure. Matches the mute/unmute button I colored in. :) <3 josh
 		top.setStyle("-fx-background-color: azure;");
 		centerGame.setStyle("-fx-background-color: azure;");
 		gameNode.setStyle("-fx-background-color: azure;");
 		bp.setStyle("-fx-background-color: azure;");
 		
+		//Main Window - Sets the top to be the menu, and the center to be the Minesweeper game.
 		bp.setTop(borderPane);
 		bp.setCenter(centerGame);
 		
+		//Sets the top to be the mute/unmute button, flag counter, and timer.
 		borderPane.setCenter(top);
 		
+		//Rescales the window based on the game difficulty (and therefore, the size of the grid).
 		if (level == "Easy") {
 			container = new Scene(bp, 600, 525);
 		}
@@ -263,9 +286,10 @@ public class Minesweeper implements Game {
 			container = new Scene(bp, 850, 730);
 		}
 		
+		//Container is the scene name that holds bp.
 		primaryStage.setScene(container);
 		
-
+		//Starts the timer.
 		timeline.play();
 	}
 
@@ -316,16 +340,26 @@ public class Minesweeper implements Game {
 
 		Tile tile = this.board.getMyTiles()[r1][c1];
 		
-		if (tile.getInfo() == 'r' && tile.isClickedState()) {
+		if (tile.getInfo() == 'r' && tile.isRevealedState() && !tile.isClickedState()) {
 			ImageView bombContainer = new ImageView(BOMB);
-
 			bombContainer.setFitWidth(tileSize - 10); // Set the width to 40 pixels
 			bombContainer.setFitHeight(tileSize - 10); // Set the height to 40 pixels
 			vbox.setAlignment(Pos.CENTER);
 			vbox.getChildren().add(bombContainer);
+		}
+		
+		if (tile.getInfo() == 'r' && tile.isClickedState()) {
+			ImageView bombContainer = new ImageView(BOMB);
+			bombContainer.setFitWidth(tileSize - 10); // Set the width to 40 pixels
+			bombContainer.setFitHeight(tileSize - 10); // Set the height to 40 pixels
+			vbox.setAlignment(Pos.CENTER);
+			vbox.getChildren().add(bombContainer);
+			vbox.setStyle("-fx-background-color: beige;");
 
-			this.youWhat("Lose");
-
+			if (!shown) {
+				this.youWhat("Lose");
+			}
+			
 		} else {
 			if (tile.isClickedState()) {
 				vbox.setStyle("-fx-background-color: beige;");
@@ -352,9 +386,12 @@ public class Minesweeper implements Game {
 	 * Creates the grid for the game
 	 */
 	public void createGrid() {
-		Scene scene = new Scene(grid);  
+		Scene scene;
+		if (!shown) {
+		scene = new Scene(grid);  
 		primaryStage.setScene(scene);
         primaryStage.show();
+		}
 		
 		for(int row = 0; row < board.getRowSize(); row++) {
 			for(int col = 0; col < board.getColSize(); col++) {
@@ -402,7 +439,8 @@ public class Minesweeper implements Game {
 							bombContainer.setFitHeight(tileSize - 10); // Set the height to 40 pixels
 							vbox.setAlignment(Pos.CENTER);
 						    vbox.getChildren().add(bombContainer);
-						    vbox.setStyle("-fx-background-color: beige;");
+						    vbox.setStyle("-fx-background-color: beige;");   
+						    this.showBombs();
 						    youWhat("Lose");
 						    
 						}
@@ -425,12 +463,12 @@ public class Minesweeper implements Game {
 
 					}
 					else if (e.getButton() == MouseButton.SECONDARY) {
-						
 						if ((boolean)vbox.getProperties().containsKey("hasFlag")) {
 							
 							vbox.getProperties().remove("hasFlag");
 							vbox.getChildren().clear();
 							flagCounter += 1;
+							flagCount.setText(Integer.toString(flagCounter));
 						}
 						else {
 							
@@ -446,7 +484,7 @@ public class Minesweeper implements Game {
 								vbox.setAlignment(Pos.CENTER);
 								vbox.getChildren().add(flagContainer);
 								flagCounter -= 1;
-
+								flagCount.setText(Integer.toString(flagCounter));
 							}
 
 						}
@@ -463,11 +501,14 @@ public class Minesweeper implements Game {
 				grid.add(vbox, col, row);
 			}
 		}
-
-		VBox root = new VBox(this.borderPane, grid);
-		scene = new Scene(root);
-		primaryStage.setScene(scene);
-		primaryStage.show();
+		
+		if (!shown) {
+			VBox root = new VBox(this.borderPane, grid);
+			scene = new Scene(root);
+			primaryStage.setScene(scene);
+			primaryStage.show();
+		}
+		
 	}
 
 	public void findEmptyBlocks(int row, int col) { // uses recursion
@@ -517,6 +558,10 @@ public class Minesweeper implements Game {
 	}
 
 	@Override
+	/**
+	 * Denotes whether the player wins or loses. Handles the scene switching, and creates a new game when finished.
+	 * @param decision Win or Lose
+	 */
 	public void youWhat(String decision) {
 		StackPane Pane = new StackPane();
 		Scene deciding;
@@ -528,14 +573,19 @@ public class Minesweeper implements Game {
 			deciding = new Scene(Pane, 850, 730);
 		}
 		
-		Button closeButton = new Button("New Game");
-        closeButton.setOnAction(event -> {
-        	new Minesweeper(primaryStage);	//trying to start new game after lose error with music still playing 
-        	//primaryStage.show();
+		Button newGameButton = new Button("New Game");
+        newGameButton.setOnAction(event -> {
+        	media.stop();
+        	new Minesweeper(primaryStage);	
         }); 
-        
-        Pane.setStyle("-fx-background-color: rgba(0, 0, 0, 0.5);"); 
-        
+        Button closeButton = new Button("Close");
+        closeButton.setOnAction(event -> {
+        	primaryStage.setScene(container);
+        	primaryStage.show();
+        });
+
+        Pane.setStyle("-fx-background-color: azure;");
+
         Text winORLose;
         
         if (decision == "Lose") {
@@ -544,15 +594,20 @@ public class Minesweeper implements Game {
         	winORLose.setFont(new Font(36));
         } else {
         	winORLose = new Text("You Win!");
-        	System.out.println("Congrats! You beat Minesweeper!");
+            System.out.println("Congrats! You beat Minesweeper!");
         	winORLose.setFont(new Font(36));
         }
         
         winORLose.setFont(new Font(36));
         
         StackPane.setAlignment(winORLose, javafx.geometry.Pos.CENTER);
+        StackPane.setAlignment(newGameButton, javafx.geometry.Pos.BOTTOM_CENTER);
         StackPane.setAlignment(closeButton, javafx.geometry.Pos.BOTTOM_CENTER);
-        Pane.getChildren().addAll(winORLose, closeButton);
+        newGameButton.setTranslateX(-80);
+        closeButton.setTranslateX(80);
+        newGameButton.setTranslateY(-45);
+        closeButton.setTranslateY(-45);
+        Pane.getChildren().addAll(winORLose, newGameButton, closeButton);
        
         timeline.stop();
         
@@ -563,6 +618,11 @@ public class Minesweeper implements Game {
 
 	}
 
+	/**
+	 * Takes in a string (mine proximity number) and a VBox, and switches the contents of the VBox to the appropriate image
+	 * @param s String representing Mine Proximity
+	 * @param v Passed-in VBox
+	 */
 	public void setMineNum(String s, VBox v) {
 	    try {
 		int leNumber = Integer.parseInt(s);
@@ -603,6 +663,11 @@ public class Minesweeper implements Game {
 		return grid;
 	}
 	
+	/**
+	 * Responsible for creating the Mute Button and handling when the user clicks on it.
+	 * @param media Takes in the media playing
+	 * @return Return the imageView of the Mute Button.
+	 */
 	public static ImageView createMuteButton(MediaPlayer media) {
         ImageView imageView = new ImageView(UNMUTE);
         
@@ -622,6 +687,9 @@ public class Minesweeper implements Game {
         return imageView;
 	}
 	
+	/**
+	 * Sets the timer.
+	 */
 	public void setTimer() {
 		if(!isLoadedGame) {
 			if (timeline != null) {
@@ -673,6 +741,23 @@ public class Minesweeper implements Game {
 						media.play();
 					}
 				});
+			}
+		}
+	}
+	
+	/**
+	 * Shows the bombs. Uses a boolean to bypass the scene switching.
+	 */
+	public void showBombs() {
+		for(int row = 0; row < board.getRowSize(); row++) {
+			for(int col = 0; col < board.getColSize(); col++) {
+				Tile tile = this.board.getMyTiles()[row][col];
+				if (tile.getInfo() == 'r') {
+					board.getMyTiles()[row][col].setRevealedState(true);
+					shown = true;
+					createGrid();
+					shown = false;
+				}
 			}
 		}
 	}
