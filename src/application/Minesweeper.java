@@ -481,14 +481,16 @@ public class Minesweeper implements Game {
 						}
 
 					}
-					else if (e.getButton() == MouseButton.SECONDARY) {
-						System.out.print((boolean)vbox.getProperties().containsKey("hasFlag"));		
+					else if (e.getButton() == MouseButton.SECONDARY) {	
 						if ((boolean)vbox.getProperties().containsKey("hasFlag") || board.getMyTiles()[r1][c1].hasFlag() == true) {
 							vbox.getProperties().remove("hasFlag");
 							this.board.getMyTiles()[r1][c1].setFlag(false);
 							vbox.getChildren().clear();
 							flagCounter += 1;
 							flagCount.setText(Integer.toString(flagCounter));
+							if (flagCounter >= 0) {
+								flagCount.setStyle("-fx-font: 18 impact; -fx-text-fill: black;");
+							}
 						}
 						else {
 							if (board.getMyTiles()[r1][c1].isClickedState() == false && board.getMyTiles()[r1][c1].hasFlag() == false) {
@@ -504,6 +506,9 @@ public class Minesweeper implements Game {
 								vbox.getChildren().add(flagContainer);
 								flagCounter -= 1;
 								flagCount.setText(Integer.toString(flagCounter));
+								if (flagCounter < 0) {
+									flagCount.setStyle("-fx-font: 18 impact; -fx-text-fill: red;");
+								}
 							} 
 						}
 					}
@@ -581,9 +586,9 @@ public class Minesweeper implements Game {
 	public void youWhat(String decision) {
 		StackPane Pane = new StackPane();
 		Scene deciding;
-		if (level == "Easy") {
+		if (board.getMines() == 10) {
 			deciding = new Scene(Pane, 600, 525);
-		} else if (level == "Medium") {
+		} else if (board.getMines() == 40) {
 			deciding = new Scene(Pane, 800, 700);
 		} else {
 			deciding = new Scene(Pane, 850, 730);
