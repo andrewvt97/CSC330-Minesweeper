@@ -441,7 +441,7 @@ public class Minesweeper implements Game {
 			if (notBeaten) {
 					if (e.getButton() == MouseButton.PRIMARY) {
 
-						if ((boolean) vbox.getProperties().containsKey("hasFlag")) {
+						if ((boolean) vbox.getProperties().containsKey("hasFlag") || board.getMyTiles()[r1][c1].hasFlag() == true) {
 							return;
 						}
 
