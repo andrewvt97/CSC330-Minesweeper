@@ -479,14 +479,15 @@ public class Minesweeper implements Game {
 					}
 					else if (e.getButton() == MouseButton.SECONDARY) {
 						System.out.print((boolean)vbox.getProperties().containsKey("hasFlag"));		
-						if ((boolean)vbox.getProperties().containsKey("hasFlag")) {
+						if ((boolean)vbox.getProperties().containsKey("hasFlag") || board.getMyTiles()[r1][c1].hasFlag() == true) {
 							vbox.getProperties().remove("hasFlag");
+							this.board.getMyTiles()[r1][c1].setFlag(false);
 							vbox.getChildren().clear();
 							flagCounter += 1;
 							flagCount.setText(Integer.toString(flagCounter));
 						}
 						else {
-							if (board.getMyTiles()[r1][c1].isClickedState() == false) {
+							if (board.getMyTiles()[r1][c1].isClickedState() == false && board.getMyTiles()[r1][c1].hasFlag() == false) {
 								ImageView flagContainer = new ImageView(FLAG);
 								
 								flagContainer.setFitWidth(tileSize - 10); // Set the width
