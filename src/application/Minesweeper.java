@@ -374,7 +374,7 @@ public class Minesweeper implements Game {
 			} else {
 				vbox.setStyle("-fx-background-color: lightgreen;");
 				if (tile.hasFlag()) {
-					if (tile.getInfo() != 'r') {
+					if (tile.getInfo() != 'r' || !shown) {
 						ImageView flagContainer = new ImageView(FLAG);
 	
 						flagContainer.setFitWidth(tileSize - 10); // Set the width
@@ -478,7 +478,7 @@ public class Minesweeper implements Game {
 
 					}
 					else if (e.getButton() == MouseButton.SECONDARY) {
-						//System.out.print((boolean)vbox.getProperties().containsKey("hasFlag"));		josh debug
+						System.out.print((boolean)vbox.getProperties().containsKey("hasFlag"));		
 						if ((boolean)vbox.getProperties().containsKey("hasFlag")) {
 							vbox.getProperties().remove("hasFlag");
 							vbox.getChildren().clear();
