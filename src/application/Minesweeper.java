@@ -157,14 +157,16 @@ public class Minesweeper implements Game {
 		RadioMenuItem hardRadioMenuItem = new RadioMenuItem("Hard");
 
 		easyRadioMenuItem.setOnAction(event -> {
-			this.board = new EasyBoard();
-			this.level = "Easy";
+			isLoadedGame = false;
+			board = new EasyBoard();
+			level = "Easy";
 			setTimer();
 			notBeaten = true;
-			startGame(this.board);
+			startGame(board);
 		});
 
 		mediumRadioMenuItem.setOnAction(event -> {
+			isLoadedGame = false;
 			this.board = new MediumBoard();
 			this.level = "Medium";
 			setTimer();
@@ -173,6 +175,7 @@ public class Minesweeper implements Game {
 		});
 
 		hardRadioMenuItem.setOnAction(event -> {
+			isLoadedGame = false;
 			this.board = new HardBoard();
 			this.level = "Hard";
 			setTimer();
@@ -370,6 +373,7 @@ public class Minesweeper implements Game {
 		
 				String numberAsText = Character.toString(tile.getInfo());
 				vbox.setAlignment(Pos.CENTER);
+				
 				setMineNum(numberAsText, vbox);
 			} else {
 				vbox.setStyle("-fx-background-color: lightgreen;");
@@ -504,7 +508,6 @@ public class Minesweeper implements Game {
 						}
 					}
 					e.consume();
-					System.out.println(flagCounter);
 					}
 					else {
 						
