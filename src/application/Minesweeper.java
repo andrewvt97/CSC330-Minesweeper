@@ -75,7 +75,7 @@ public class Minesweeper implements Game {
 	private int seconds = 0;
 	BorderPane bp;
 	Scene container;
-	MediaPlayer media = new MediaPlayer(C418);
+	MediaPlayer media;
 
 	public Minesweeper(Stage primaryStage) {
 		this.board = new EasyBoard();
@@ -112,6 +112,7 @@ public class Minesweeper implements Game {
 				output.writeBoolean(this.isFirstClick);
 				output.writeInt(this.safeTilesClicked);
 				output.writeInt(this.flagCounter);
+				output.writeInt(seconds);
 				output.close();
 			} catch (Exception e) {
 				System.out.println("Error writing board to file.");
@@ -128,6 +129,7 @@ public class Minesweeper implements Game {
 				this.isFirstClick = (Boolean) input.readBoolean();
 				this.safeTilesClicked = (Integer) input.readInt();
 				this.flagCounter = (Integer) input.readInt();
+				this.seconds = (Integer) input.readInt();
 				input.close();
 				startGame(this.board);
 			} catch (Exception e) {
@@ -203,12 +205,20 @@ public class Minesweeper implements Game {
 			createGrid();
 		}
 		
-// 		isFirstClick = true;
 		safeTilesClicked = 0;
 		flagCounter = board.getMines();
 		
 		//window handling
 		HBox top = new HBox();
+		
+		
+		if(media != null) {
+			media.pause();
+			media.seek(Duration.ZERO);
+			media.play();
+		}else {
+			media = new MediaPlayer(C418);
+		}
 		
 		setTimer();
 		
@@ -518,10 +528,10 @@ public class Minesweeper implements Game {
 			deciding = new Scene(Pane, 850, 730);
 		}
 		
-		Button closeButton = new Button("Close");
+		Button closeButton = new Button("New Game");
         closeButton.setOnAction(event -> {
-        	primaryStage.setScene(container);
-        	primaryStage.show();
+        	new Minesweeper(primaryStage);	//trying to start new game after lose error with music still playing 
+        	//primaryStage.show();
         }); 
         
         Pane.setStyle("-fx-background-color: rgba(0, 0, 0, 0.5);"); 
@@ -613,36 +623,21 @@ public class Minesweeper implements Game {
 	}
 	
 	public void setTimer() {
-		if (timeline != null) {
-			timeline.stop();
-			if (level == "Easy") {
-				timer = new Label("04:00");
-				seconds = 240;
-			} else if (level == "Medium") {
-				timer = new Label("06:00");
-				seconds = 360;
-			} else {
-				timer = new Label("09:00");
-				seconds = 540;
-			}
-			timer.setStyle("-fx-font: 24 impact;");
-			timeline = new Timeline(new KeyFrame(Duration.seconds(1), event -> {
-				seconds--;
-				int minutes = seconds / 60;
-				int remaining = seconds % 60;
-				timer.setText(String.format("%02d:%02d", minutes, remaining));
-				if (seconds == 0) {
-					youWhat("Lose");
+		if(!isLoadedGame) {
+			if (timeline != null) {
+				timeline.stop();
+				if (level == "Easy") {
+					timer = new Label("04:00");
+					seconds = 240;
+				} else if (level == "Medium") {
+					timer = new Label("06:00");
+					seconds = 360;
+				} else {
+					timer = new Label("09:00");
+					seconds = 540;
 				}
-	}));
-			timeline.setCycleCount(Timeline.INDEFINITE);
-		}
-		else {
-			timer = new Label("04:00");
-			seconds = 240;
-			
-			timer.setStyle("-fx-font: 24 impact;");
-			timeline = new Timeline(new KeyFrame(Duration.seconds(1), event -> {
+				timer.setStyle("-fx-font: 24 impact;");
+				timeline = new Timeline(new KeyFrame(Duration.seconds(1), event -> {
 					seconds--;
 					int minutes = seconds / 60;
 					int remaining = seconds % 60;
@@ -651,17 +646,34 @@ public class Minesweeper implements Game {
 						youWhat("Lose");
 					}
 		}));
-			timeline.setCycleCount(Timeline.INDEFINITE);
-			
-			media.setVolume(0.19f);
-			media.setOnEndOfMedia(new Runnable() {
-				@Override
-				public void run() {
-					media.seek(Duration.ZERO);
-					media.setVolume(0.19f);
-					media.play();
-				}
-			});
+				timeline.setCycleCount(Timeline.INDEFINITE);
+			}
+			else {
+				timer = new Label("04:00");
+				seconds = 240;
+				
+				timer.setStyle("-fx-font: 24 impact;");
+				timeline = new Timeline(new KeyFrame(Duration.seconds(1), event -> {
+						seconds--;
+						int minutes = seconds / 60;
+						int remaining = seconds % 60;
+						timer.setText(String.format("%02d:%02d", minutes, remaining));
+						if (seconds == 0) {
+							youWhat("Lose");
+						}
+			}));
+				timeline.setCycleCount(Timeline.INDEFINITE);
+				
+				media.setVolume(0.19f);
+				media.setOnEndOfMedia(new Runnable() {
+					@Override
+					public void run() {
+						media.seek(Duration.ZERO);
+						media.setVolume(0.19f);
+						media.play();
+					}
+				});
+			}
 		}
 	}
 	
