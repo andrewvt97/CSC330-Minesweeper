@@ -215,7 +215,9 @@ public class Minesweeper implements Game {
 		}
 		
 		safeTilesClicked = 0;
-		flagCounter = board.getMines();
+		if(!isLoadedGame) {
+			flagCounter = board.getMines();
+		}
 		
 		//Handles restarts of audio.
 		if(media != null) {
@@ -464,7 +466,6 @@ public class Minesweeper implements Game {
 					}
 					else if (e.getButton() == MouseButton.SECONDARY) {
 						if ((boolean)vbox.getProperties().containsKey("hasFlag")) {
-							
 							vbox.getProperties().remove("hasFlag");
 							vbox.getChildren().clear();
 							flagCounter += 1;
