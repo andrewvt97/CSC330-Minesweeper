@@ -47,6 +47,7 @@ import static application.Constants.MINESIX;
 import static application.Constants.MINESEVEN;
 import static application.Constants.MINEEIGHT;
 import static application.Constants.BOMB;
+import static application.Constants.DBOMB;
 import static application.Constants.FLAG;
 import static application.Constants.MUTE;
 import static application.Constants.UNMUTE;
@@ -342,7 +343,7 @@ public class Minesweeper implements Game {
 
 		Tile tile = this.board.getMyTiles()[r1][c1];
 		
-		if (tile.getInfo() == 'r' && tile.isRevealedState() && !tile.isClickedState()) {
+		if (tile.getInfo() == 'r' && tile.isRevealedState() && !tile.isClickedState() && !tile.hasFlag()) {
 			ImageView bombContainer = new ImageView(BOMB);
 			bombContainer.setFitWidth(tileSize - 10); // Set the width to 40 pixels
 			bombContainer.setFitHeight(tileSize - 10); // Set the height to 40 pixels
@@ -350,7 +351,8 @@ public class Minesweeper implements Game {
 			vbox.getChildren().add(bombContainer);
 		}
 		
-		if (tile.getInfo() == 'r' && tile.isClickedState()) {
+		
+		if (tile.getInfo() == 'r' && tile.isClickedState() && !tile.hasFlag()) {
 			ImageView bombContainer = new ImageView(BOMB);
 			bombContainer.setFitWidth(tileSize - 10); // Set the width to 40 pixels
 			bombContainer.setFitHeight(tileSize - 10); // Set the height to 40 pixels
@@ -372,13 +374,24 @@ public class Minesweeper implements Game {
 			} else {
 				vbox.setStyle("-fx-background-color: lightgreen;");
 				if (tile.hasFlag()) {
-					ImageView flagContainer = new ImageView(FLAG);
-
-					flagContainer.setFitWidth(tileSize - 10); // Set the width
-					flagContainer.setFitHeight(tileSize - 10); // Set the height
-					
-					vbox.setAlignment(Pos.CENTER);
-					vbox.getChildren().add(flagContainer);
+					if (tile.getInfo() != 'r') {
+						ImageView flagContainer = new ImageView(FLAG);
+	
+						flagContainer.setFitWidth(tileSize - 10); // Set the width
+						flagContainer.setFitHeight(tileSize - 10); // Set the height
+						
+						vbox.setAlignment(Pos.CENTER);
+						vbox.getChildren().add(flagContainer);
+					} else {
+						ImageView DifusedBomb = new ImageView(DBOMB);
+						
+						DifusedBomb.setFitWidth(tileSize - 10); // Set the width to 40 pixels
+						DifusedBomb.setFitHeight(tileSize - 10); // Set the height to 40 pixels
+						
+						vbox.setStyle("-fx-background-color: azure;");
+						vbox.setAlignment(Pos.CENTER);
+						vbox.getChildren().add(DifusedBomb);
+					}
 				}
 			}
 		}
@@ -465,6 +478,7 @@ public class Minesweeper implements Game {
 
 					}
 					else if (e.getButton() == MouseButton.SECONDARY) {
+						//System.out.print((boolean)vbox.getProperties().containsKey("hasFlag"));		josh debug
 						if ((boolean)vbox.getProperties().containsKey("hasFlag")) {
 							vbox.getProperties().remove("hasFlag");
 							vbox.getChildren().clear();
