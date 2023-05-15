@@ -76,9 +76,9 @@ public class Minesweeper implements Game {
 	private Label flagCount;
 	
 	private int seconds = 0;
-	BorderPane bp;
-	Scene container;
-	MediaPlayer media;
+	private BorderPane bp;
+	private Scene container;
+	private MediaPlayer media;
 
 	public Minesweeper(Stage primaryStage) {
 		this.board = new EasyBoard();

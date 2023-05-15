@@ -14,7 +14,7 @@ public class HardBoard extends Board {
 	
 	@Override
 	public void setConfigurations() {
-		 super.setRowSize(20);
+		 super.setRowSize(18);
 		 super.setColSize(24);
 		 super.setMines(99);
 		 super.setTileSize(30); 

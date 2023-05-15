@@ -14,7 +14,7 @@ public class MediumBoard extends Board {
 	
 	@Override
 	public void setConfigurations() {
-		 super.setRowSize(14);
+		 super.setRowSize(12);
 		 super.setColSize(18);
 		 super.setMines(40);
 		 super.setTileSize(40); 
