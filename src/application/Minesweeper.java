@@ -282,10 +282,10 @@ public class Minesweeper implements Game {
 		borderPane.setCenter(top);
 		
 		//Rescales the window based on the game difficulty (and therefore, the size of the grid).
-		if (level == "Easy") {
+		if (board.getMines() == 10) {
 			container = new Scene(bp, 600, 525);
 		}
-		else if (level == "Medium") {
+		else if (board.getMines() == 40) {
 			container = new Scene(bp, 800, 700);
 		}
 		else {
